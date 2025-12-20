@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Sixtyfour+Convergence&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import "tailwindcss";
+@import "swiper/css";
+
+.h {
+    font-family: 'Eagle Lake', cursive;
+}
+.k {
+    font-family: 'Lora', serif;
+}
+
+/* Add padding-top to body to account for fixed header */
+body {
+  padding-top: 95px;
+}
+
+/* Hide scrollbar for WebKit browsers */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for Firefox */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+
+
+  /* Hides the scrollbar but allows scrolling */
+.scrollable-container {
+  overflow: hidden;
+}
+
+.scrollable-container::-webkit-scrollbar {
+  display: none; /* Hides the scrollbar */
+}
+
+.scrollable-container {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+  
+
+
+
+
+
+
