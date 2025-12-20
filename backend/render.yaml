@@ -1,0 +1,44 @@
+# Render Blueprint Configuration
+# This file allows you to deploy multiple services at once
+
+services:
+  # Backend Web Service
+  - type: web
+    name: edu2medu-backend
+    env: node
+    plan: free  # Change to 'starter' or 'standard' for production
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: MONGO_URI
+        sync: false  # Set manually in Render dashboard
+      - key: SESSION_SECRET
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: EMAIL
+        sync: false
+      - key: PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: APP_PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        fromService:
+          type: web
+          name: edu2medu-backend
+          property: port
+
+  # Frontend Static Site
+  - type: web
+    name: edu2medu-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_BASEURI
+        sync: false  # Set manually after backend deploys
+

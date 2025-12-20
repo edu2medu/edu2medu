@@ -93,7 +93,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
-const port = process.env.APP_PORT || 8002;
+const port = process.env.PORT || process.env.APP_PORT || 8002;
 
 // MongoDB connection (using URI from .env)
 mongoose
@@ -107,7 +107,8 @@ mongoose
 // Load allowed origins from .env and split into an array
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:5173',
-  'https://edu2medu-nine.vercel.app',
+  'https://edu2medu-frontend.vercel.app',
+  'https://edu2medu-backend.onrender.com',
   'https://www.edu2medu.com',
   'https://edu2medu.com'
 ];

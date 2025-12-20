@@ -12,7 +12,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://edu2meduu-backend.vercel.app',
+        target: process.env.VITE_BASEURI || 'https://edu2medu-backend.onrender.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
