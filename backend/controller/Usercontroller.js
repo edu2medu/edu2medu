@@ -347,30 +347,53 @@ exports.updateProfile = async (req, res) => {
         return res.status(400).json({ success: false, message: "Email is required" });
       }
 
-      let updateFields = { ...req.body };
+      // Verify user exists
+      const existingUser = await User.findOne({ email });
+      if (!existingUser) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      // Build updateFields object - exclude email and handle all fields properly
+      let updateFields = {};
+      
+      // List of allowed fields to update
+      const allowedFields = [
+        'name', 'phone', 'address', 'description', 'contactInfo', 
+        'amenity', 'establishment', 'additionalInfo', 'teachers', 'category'
+      ];
+
+      // Process each allowed field
+      allowedFields.forEach(field => {
+        if (req.body[field] !== undefined) {
+          // Allow empty strings to clear fields
+          updateFields[field] = req.body[field];
+        }
+      });
 
       // Handle file upload
       if (req.file) {
         updateFields.image = `/uploads/${req.file.filename}`;
       }
 
-      // Remove empty fields
-      Object.keys(updateFields).forEach((key) => {
-        if (!updateFields[key]) {
-          delete updateFields[key];
-        }
-      });
-
-      console.log("Fields to update:", updateFields);
-
       // Ensure `teachers` is correctly parsed if received as a string
       if (updateFields.teachers && typeof updateFields.teachers === "string") {
         try {
           updateFields.teachers = JSON.parse(updateFields.teachers);
         } catch (parseError) {
+          console.error("Error parsing teachers:", parseError);
           return res.status(400).json({ success: false, message: "Invalid teachers format" });
         }
       }
+
+      // Remove undefined values but keep empty strings and null
+      Object.keys(updateFields).forEach((key) => {
+        if (updateFields[key] === undefined) {
+          delete updateFields[key];
+        }
+      });
+
+      console.log("Fields to update:", updateFields);
+      console.log("Updating user with email:", email);
 
       // Find and update the user by email
       const updatedUser = await User.findOneAndUpdate(
@@ -380,8 +403,11 @@ exports.updateProfile = async (req, res) => {
       );
 
       if (!updatedUser) {
+        console.error("User not found after update attempt");
         return res.status(404).json({ success: false, message: "User not found" });
       }
+
+      console.log("Profile updated successfully for:", updatedUser.email);
 
       // Update session with new user data
       req.session.user = {
@@ -399,7 +425,11 @@ exports.updateProfile = async (req, res) => {
       });
     } catch (error) {
       console.error("Error updating profile:", error);
-      res.status(500).json({ success: false, message: "Internal server error" });
+      res.status(500).json({ 
+        success: false, 
+        message: "Internal server error",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 };

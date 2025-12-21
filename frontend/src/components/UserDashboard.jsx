@@ -139,9 +139,14 @@ export default function UserDashboard() {
       const formDataToSend = new FormData();
       formDataToSend.append("email", user.email);
   
+      // Send all fields including empty strings to allow clearing fields
       Object.keys(formData).forEach((key) => {
-        if (key !== "teachers" && formData[key]) {
-          formDataToSend.append(key, formData[key]);
+        if (key !== "teachers" && key !== "id" && key !== "email") {
+          // Send the value even if it's an empty string
+          const value = formData[key];
+          if (value !== undefined && value !== null) {
+            formDataToSend.append(key, value);
+          }
         }
       });
   
@@ -163,9 +168,44 @@ export default function UserDashboard() {
         }
       );
   
-      setMessage(response.data.message);
+      if (response.data.success && response.data.user) {
+        // Update user state with the updated user data from server
+        const updatedUser = {
+          ...user,
+          ...response.data.user,
+          _id: response.data.user._id || user._id,
+        };
+        
+        setUser(updatedUser);
+        
+        // Update sessionStorage with the updated user data
+        sessionStorage.setItem("user", JSON.stringify(updatedUser));
+        
+        // Update formData to reflect the saved changes
+        setFormData({
+          id: updatedUser._id || "",
+          name: updatedUser.name || "",
+          address: updatedUser.address || "",
+          phone: updatedUser.phone || "",
+          email: updatedUser.email || "",
+          description: updatedUser.description || "",
+          contactInfo: updatedUser.contactInfo || "",
+          amenity: updatedUser.amenity || "",
+          establishment: updatedUser.establishment || "",
+          additionalInfo: updatedUser.additionalInfo || "",
+          teachers: updatedUser.teachers || [],
+        });
+        
+        // Clear profile picture state after successful upload
+        setProfilePicture(null);
+        
+        setMessage(response.data.message || "Profile updated successfully!");
+      } else {
+        setMessage(response.data.message || "Profile updated successfully!");
+      }
     } catch (error) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+      console.error("Error updating profile:", error);
+      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -180,6 +220,25 @@ export default function UserDashboard() {
       navigate("/");
     }
   }, [navigate]);
+
+  // Sync formData with user state when user loads or changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        id: user._id || user.id || "",
+        name: user.name || "",
+        address: user.address || "",
+        phone: user.phone || "",
+        email: user.email || "",
+        description: user.description || "",
+        contactInfo: user.contactInfo || "",
+        amenity: user.amenity || "",
+        establishment: user.establishment || "",
+        additionalInfo: user.additionalInfo || "",
+        teachers: Array.isArray(user.teachers) ? user.teachers : [],
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
