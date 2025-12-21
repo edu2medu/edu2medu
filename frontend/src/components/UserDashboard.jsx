@@ -20,7 +20,7 @@ import {
   Menu,
   X,
   BookOpen,
-
+  Trash2,
   Calendar,
 } from "lucide-react";
 
@@ -58,6 +58,8 @@ export default function UserDashboard() {
   const [profilePicture, setProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [jobs, setJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
 
   const handleJobFormChange = (e) => {
     setJobFormData({ ...jobFormData, [e.target.name]: e.target.value });
@@ -90,9 +92,55 @@ export default function UserDashboard() {
         applicationDeadline: "",
         howToApply: "",
       });
+      // Refresh jobs list after creating
+      fetchJobs();
     } catch (error) {
       console.error("Error:", error);
       setMessage(error.response?.data?.message || "Failed to post job");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch all jobs
+  const fetchJobs = async () => {
+    setLoadingJobs(true);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASEURI}/user/getalljobs`);
+      setJobs(response.data || []);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      setMessage("Failed to load jobs");
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
+
+  // Delete a job
+  const handleDeleteJob = async (jobId) => {
+    if (!window.confirm("Are you sure you want to delete this job opening?")) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BASEURI}/user/deletejob/${jobId}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        setMessage(response.data.message || "Job deleted successfully");
+        // Refresh jobs list
+        fetchJobs();
+      } else {
+        setMessage(response.data.message || "Failed to delete job");
+      }
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      setMessage(error.response?.data?.message || "Failed to delete job");
     } finally {
       setLoading(false);
     }
@@ -257,6 +305,13 @@ export default function UserDashboard() {
     };
   }, []);
 
+  // Fetch jobs when "myJobs" tab is active
+  useEffect(() => {
+    if (activeTab === "myJobs") {
+      fetchJobs();
+    }
+  }, [activeTab]);
+
   const renderContent = () => {
     if (!user) return null;
     switch (activeTab) {
@@ -329,6 +384,21 @@ export default function UserDashboard() {
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">Post a Job</h3>
                     <p className="text-purple-100 text-sm">Create and manage job postings</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div 
+                onClick={() => setActiveTab("myJobs")}
+                className="group bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform">
+                      <Calendar className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">My Jobs</h3>
+                    <p className="text-indigo-100 text-sm">View and delete your job openings</p>
                   </div>
                 </div>
               </div>
@@ -782,6 +852,78 @@ export default function UserDashboard() {
         )}
       </div>
     );
+
+      case "myJobs":
+        return (
+          <div className="space-y-6">
+            <div className="border-b border-gray-200 pb-4">
+              <h2 className="text-2xl font-bold text-gray-800">My Job Openings</h2>
+              <p className="text-gray-600 mt-1">
+                View and manage all posted job openings.
+              </p>
+            </div>
+
+            {loadingJobs ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">Loading jobs...</p>
+              </div>
+            ) : jobs.length === 0 ? (
+              <div className="text-center py-12 bg-gray-50 rounded-xl">
+                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 text-lg">No job openings posted yet.</p>
+                <p className="text-gray-500 mt-2">Post your first job opening to get started!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {jobs.map((job) => (
+                  <div
+                    key={job._id}
+                    className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">{job.jobTitle}</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                          <p><strong>Company:</strong> {job.companyName}</p>
+                          <p><strong>Location:</strong> {job.location}</p>
+                          <p><strong>Job Type:</strong> {job.jobType}</p>
+                          {job.salary && <p><strong>Salary:</strong> {job.salary}</p>}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteJob(job._id)}
+                        disabled={loading}
+                        className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Delete job"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                    
+                    <div className="mt-4 space-y-2 text-sm text-gray-600">
+                      <p><strong>Description:</strong> {job.jobDescription}</p>
+                      <p><strong>Requirements:</strong> {job.jobRequirements}</p>
+                      <p><strong>Deadline:</strong> {new Date(job.applicationDeadline).toLocaleDateString()}</p>
+                      <p><strong>How to Apply:</strong> {job.howToApply}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Status Message */}
+            {message && (
+              <div className={`mt-6 p-4 rounded-xl text-center ${
+                message.includes("success") || message.includes("Success")
+                  ? "bg-green-50 border border-green-200 text-green-700"
+                  : "bg-red-50 border border-red-200 text-red-700"
+              }`}>
+                <p className="font-medium">{message}</p>
+              </div>
+            )}
+          </div>
+        );
+
         // case "status":
         //   return (
         //     <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
@@ -980,6 +1122,17 @@ export default function UserDashboard() {
             >
               <Edit3 className="w-5 h-5" /> 
               <span className="font-medium">Post a Job</span>
+            </li>
+            <li
+              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${
+                activeTab === "myJobs"
+                  ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
+                  : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+              }`}
+              onClick={() => { setActiveTab("myJobs"); setIsSidebarOpen(false); }}
+            >
+              <Calendar className="w-5 h-5" /> 
+              <span className="font-medium">My Jobs</span>
             </li>
             <li
               className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${

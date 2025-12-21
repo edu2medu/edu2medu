@@ -740,10 +740,46 @@ exports.createJob = async (req, res) => {
 // Get all jobs
 exports.getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find();
+    const jobs = await Job.find().sort({ createdAt: -1 }); // Sort by newest first
     res.status(200).json(jobs);
   } catch (error) {
     res.status(500).json({ message: "Error fetching jobs", error });
+  }
+};
+
+// Delete a job by ID
+exports.deleteJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Job ID is required" 
+      });
+    }
+
+    const deletedJob = await Job.findByIdAndDelete(id);
+    
+    if (!deletedJob) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Job not found" 
+      });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Job deleted successfully",
+      job: deletedJob 
+    });
+  } catch (error) {
+    console.error("Error deleting job:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error deleting job", 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

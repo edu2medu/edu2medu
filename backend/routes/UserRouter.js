@@ -14,6 +14,7 @@ const {searchEducation} = require('../controller/Usercontroller');
 const {searchHealthcare} = require('../controller/Usercontroller');
 const {createJob} = require('../controller/Usercontroller');
 const {getAllJobs} = require('../controller/Usercontroller');
+const {deleteJob} = require('../controller/Usercontroller');
  const {storePayment,getPaymentByEmail}= require('../controller/Usercontroller');
 
 UserRouter.post('/register', registerUser);
@@ -34,6 +35,7 @@ UserRouter.get('/searchEducation',searchEducation)
 UserRouter.get('/searchHealthcare',searchHealthcare)
 UserRouter.post('/createjob',createJob)
 UserRouter.get('/getalljobs',getAllJobs)
+UserRouter.delete('/deletejob/:id',deleteJob)
 // UserRouter.post("/generate-qr", generateQR);
 UserRouter.post('/addpayment', storePayment);
 UserRouter.post('/getpayment', getPaymentByEmail);
