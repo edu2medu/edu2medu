@@ -101,8 +101,11 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .then(() => console.log('✅ MongoDB connected successfully'))
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err);
+    // Don't exit process, let the app continue (for Render compatibility)
+  });
 
 // Load allowed origins from .env and split into an array
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [

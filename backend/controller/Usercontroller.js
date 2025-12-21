@@ -3,7 +3,7 @@ const Job = require("../model/Jobs");
 
 const User = require("../model/User");
 const Category = require("../model/Category");
-const ContacAt = require("../model/Contact");
+const Contact = require("../model/Contact");
 const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
@@ -252,19 +252,49 @@ exports.requestCall = async (req, res) => {
   try {
     const { name, phone } = req.body;
 
+    // Validate required fields
     if (!name || !phone) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const newContact = new Contact({ name, phone });
+    // Validate phone number format (should be 10 digits)
+    if (!/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ error: "Phone number must be exactly 10 digits" });
+    }
+
+    // Create and save contact
+    const newContact = new Contact({ 
+      name: name.trim(), 
+      phone: phone.trim() 
+    });
+    
     await newContact.save();
 
     res.status(201).json({
-      message:
-        "Thank you for reaching out! Our team will get back to you soon.",
+      success: true,
+      message: "Thank you for reaching out! Our team will get back to you soon.",
     });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error in requestCall:", error);
+    
+    // Handle specific MongoDB errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        error: "Validation error", 
+        details: error.message 
+      });
+    }
+    
+    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+      return res.status(500).json({ 
+        error: "Database error. Please try again later." 
+      });
+    }
+
+    res.status(500).json({ 
+      error: "Internal Server Error",
+      message: process.env.NODE_ENV === 'development' ? error.message : "Something went wrong. Please try again."
+    });
   }
 };
 
