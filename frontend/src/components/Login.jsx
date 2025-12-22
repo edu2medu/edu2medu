@@ -46,7 +46,9 @@ const Login = () => {
   
       if (data.success) {
         const storageKey = userType === "admin" ? "admin" : "user";
-        sessionStorage.setItem(storageKey, JSON.stringify(data[storageKey]));
+        // Store user data with all fields including status
+        const userData = data[storageKey] || data.user || data.admin;
+        sessionStorage.setItem(storageKey, JSON.stringify(userData));
         sessionStorage.setItem("isAuthenticated", "true");
         sessionStorage.setItem("userType", userType);
   

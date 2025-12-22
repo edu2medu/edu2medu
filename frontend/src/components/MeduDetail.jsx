@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaArrowLeft, FaMapMarkerAlt,  FaQuoteLeft, FaQuoteRight } from "react-icons/fa";
+import { FaArrowLeft, FaMapMarkerAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 const MeduDetail = () => {
@@ -114,7 +114,7 @@ const MeduDetail = () => {
               </motion.div>
             </div>
 
-            <div className="p-6 pt-20 sm:p-10">
+            <div className="p-4 sm:p-6 pt-16 sm:pt-20 md:p-10">
                      {/* Contact Information Section */}
                             <motion.div
                               variants={{
@@ -127,28 +127,26 @@ const MeduDetail = () => {
                               }}
                               initial="hidden"
                               animate={isLoaded ? "visible" : "hidden"}
-                              className="mb-8 bg-gradient-to-r from-sky-50 to-blue-50 p-6 rounded-2xl relative"
+                              className="mb-8 bg-gradient-to-r from-sky-50 to-blue-50 p-4 sm:p-6 rounded-2xl relative"
                             >
-                              <FaQuoteLeft className="absolute top-4 left-4 flex text-sky-200 text-xl" />
-                              <div className="flex  justify-between">
-                                <div className="w-1/2 pr-4 px-10">
-                                  <h3 className="text-xl font-bold text-sky-700 mb-2">
+                              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                                <div className="w-full sm:w-1/2 sm:pr-4">
+                                  <h3 className="text-lg sm:text-xl font-bold text-sky-700 mb-2">
                                     Contact Information
                                   </h3>
-                                  <h1 className="font-bold">
+                                  <div className="text-sm sm:text-base font-bold break-words">
                                     {formatTextWithLineBreaks(user.contactInfo)}
-                                  </h1>
+                                  </div>
                                 </div>
-                                <div className="w-1/2 px-25">
-                                  <h3 className="text-xl font-semibold text-sky-700 mb-2">
+                                <div className="w-full sm:w-1/2 sm:pl-4">
+                                  <h3 className="text-lg sm:text-xl font-semibold text-sky-700 mb-2">
                                     Establishment
                                   </h3>
-                                  <h1 className="font-serif">
+                                  <div className="text-sm sm:text-base font-serif break-words">
                                     {formatTextWithLineBreaks(user.establishment)}
-                                  </h1>
+                                  </div>
                                 </div>
                               </div>
-                              <FaQuoteRight className="absolute bottom-4 right-4 text-sky-200 text-xl" />
                             </motion.div>
               {/* About Section */}
               <motion.div
@@ -158,15 +156,15 @@ const MeduDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-8 bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl relative"
+                className="mb-8 bg-gradient-to-r from-teal-50 to-cyan-50 p-4 sm:p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-4 left-4 text-teal-200 text-xl" />
-                <div className="ml-6 mr-6">
-                  <h3 className="text-xl font-semibold text-teal-700 mb-2">About</h3>
-                  {formatTextWithLineBreaks(user.additionalInfo)}
-                  <p className="text-gray-700 leading-relaxed">{user.additionalInfo || "No additional information available."}</p>
+                <div className="px-2 sm:px-6">
+                  <h3 className="text-lg sm:text-xl font-semibold text-teal-700 mb-2">About</h3>
+                  <div className="text-sm sm:text-base text-gray-700 leading-relaxed break-words">
+                    {formatTextWithLineBreaks(user.additionalInfo)}
+                    {!user.additionalInfo && <p>No additional information available.</p>}
+                  </div>
                 </div>
-                <FaQuoteRight className="absolute bottom-4 right-4 text-teal-200 text-xl" />
               </motion.div>
 
               {/* Amenity Section */}
@@ -177,27 +175,25 @@ const MeduDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-6 rounded-2xl relative"
+                className="mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-4 left-4 text-cyan-200 text-xl" />
-                <div className="ml-6 mr-6">
-                  <h3 className="text-xl font-semibold text-cyan-700 mb-2">Amenity</h3>
+                <div className="px-2 sm:px-6">
+                  <h3 className="text-lg sm:text-xl font-semibold text-cyan-700 mb-2">Amenity</h3>
                   {user.amenity ? (
-                    <ul className="list-disc pl-5">
+                    <ul className="list-disc pl-4 sm:pl-5 space-y-2">
                       {user.amenity
                         .split("\n")
                         .filter((line) => line.trim() !== "")
                         .map((line, index) => (
-                          <li key={index} className="text-gray-700 leading-relaxed">
-                            * {line.trim()}
+                          <li key={index} className="text-sm sm:text-base text-gray-700 leading-relaxed break-words">
+                            {line.trim()}
                           </li>
                         ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-700 leading-relaxed">No amenities listed.</p>
+                    <p className="text-sm sm:text-base text-gray-700 leading-relaxed">No amenities listed.</p>
                   )}
                 </div>
-                <FaQuoteRight className="absolute bottom-4 right-4 text-cyan-200 text-xl" />
               </motion.div>
 
               {/* Specialization Section */}
@@ -208,14 +204,13 @@ const MeduDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-6 rounded-2xl relative"
+                className="mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-4 left-4 text-cyan-200 text-xl" />
-                <div className="p-6">
-                  <h1 className="text-2xl font-semibold mb-4">Specialist Information</h1>
-                  <div className="bg-gray-100 p-4 rounded-lg">
+                <div className="p-2 sm:p-4 md:p-6">
+                  <h1 className="text-xl sm:text-2xl font-semibold mb-4">Specialist Information</h1>
+                  <div className="bg-gray-100 p-3 sm:p-4 rounded-lg">
                     {user.teachers && user.teachers.length > 0 ? (
-                      <ul className="list-disc pl-5">
+                      <ul className="list-disc pl-4 sm:pl-5 space-y-2">
                         {user.teachers.map((teacher, index) => {
                           const teacherName =
                             typeof teacher.name === "object" ? teacher.name.type : teacher.name || "Unknown";
@@ -225,7 +220,7 @@ const MeduDetail = () => {
                               : teacher.qualification || "Unknown";
 
                           return (
-                            <li key={index} className="text-lg font-semibold">
+                            <li key={index} className="text-sm sm:text-base md:text-lg font-semibold break-words">
                               <span className="text-teal-700">{teacherName}</span> -{" "}
                               {teacherQualification}
                             </li>
@@ -233,11 +228,10 @@ const MeduDetail = () => {
                         })}
                       </ul>
                     ) : (
-                      <p className="text-gray-600">No specialist information available.</p>
+                      <p className="text-sm sm:text-base text-gray-600">No specialist information available.</p>
                     )}
                   </div>
                 </div>
-                <FaQuoteRight className="absolute bottom-4 right-4 text-cyan-200 text-xl" />
               </motion.div>
 
              {/* Contact Information Section */}
@@ -254,14 +248,12 @@ const MeduDetail = () => {
                 animate={isLoaded ? "visible" : "hidden"}
                 className="mb-8 bg-gradient-to-r from-sky-50 to-blue-50 p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-4 left-4 text-sky-200 text-xl" />
                 <div className="ml-6 mr-6">
                   <h3 className="text-xl font-semibold text-sky-700 mb-2">
                     Contact Information
                   </h3>
                   {formatTextWithLineBreaks(user.contactInfo)}
                 </div>
-                <FaQuoteRight className="absolute bottom-4 right-4 text-sky-200 text-xl" />
               </motion.div> */}
  
 

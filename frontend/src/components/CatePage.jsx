@@ -21,27 +21,37 @@ const CatePage = () => {
       try {
         let response;
         if (cachedData) {
-          // Use cached data immediately for instant display
+          // Use cached data immediately for instant display (< 100ms)
           response = { data: cachedData };
           setLoading(false);
+          // Process immediately
+          if (response.data && Array.isArray(response.data.users)) {
+            const filteredusers = response.data.users.filter(
+              (user) => user.category === categoryName && user.status === 'active'
+            );
+            setusers(filteredusers);
+          }
         } else {
-          // Fetch fresh data
-          response = await deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getAllUsers`);
-          setCachedData(cacheKey, response.data);
-        }
-        
-        if (response.data && Array.isArray(response.data.users)) {
-          const filteredusers = response.data.users.filter(
-            (user) => user.category === categoryName && user.status === 'active'
+          // Fetch fresh data with timeout (max 3 seconds)
+          const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getAllUsers`);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 3000)
           );
-          setusers(filteredusers);
-        } else {
-          console.error("Unexpected response format", response.data);
-          setError("Invalid data format received from the server.");
+          
+          response = await Promise.race([fetchPromise, timeoutPromise]);
+          setCachedData(cacheKey, response.data);
+          
+          // Process immediately
+          if (response.data && Array.isArray(response.data.users)) {
+            const filteredusers = response.data.users.filter(
+              (user) => user.category === categoryName && user.status === 'active'
+            );
+            setusers(filteredusers);
+          }
         }
       } catch (error) {
-        console.error("Error fetching users", error);
         setError("Failed to load data. Please try again later.");
+        setusers([]);
       } finally {
         setLoading(false);
       }

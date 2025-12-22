@@ -30,27 +30,43 @@ function MedicalCl() {
       try {
         let response;
         if (cachedData) {
-          // Use cached data for instant display
+          // Use cached data for instant display (< 100ms)
           response = { data: cachedData };
           setLoading(false);
+          // Process and display immediately
+          if (response.data.success && Array.isArray(response.data.users)) {
+            const categorizedUsers = {};
+            categories.forEach((category) => {
+              categorizedUsers[category] = response.data.users.filter(
+                (user) => user.category === category && user.status === 'active'
+              );
+            });
+            setUsersByCategory(categorizedUsers);
+          }
         } else {
-          response = await deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getHealthcareUsers`);
+          // Fetch fresh data with timeout (max 3 seconds)
+          const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getHealthcareUsers`);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 3000)
+          );
+          
+          response = await Promise.race([fetchPromise, timeoutPromise]);
           setCachedData(cacheKey, response.data);
-        }
-        
-        if (response.data.success && Array.isArray(response.data.users)) {
-          const categorizedUsers = {};
-          categories.forEach((category) => {
-            categorizedUsers[category] = response.data.users.filter(
-              (user) => user.category === category && user.status === 'active'
-            );
-          });
-          setUsersByCategory(categorizedUsers);
-        } else {
-          console.error('Invalid API response format:', response.data);
+          
+          // Process and display immediately
+          if (response.data.success && Array.isArray(response.data.users)) {
+            const categorizedUsers = {};
+            categories.forEach((category) => {
+              categorizedUsers[category] = response.data.users.filter(
+                (user) => user.category === category && user.status === 'active'
+              );
+            });
+            setUsersByCategory(categorizedUsers);
+          }
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        // Silently handle errors, show empty state
+        setUsersByCategory({});
       } finally {
         setLoading(false);
       }
@@ -147,11 +163,37 @@ function MedicalCl() {
     </div>
   );
 
+  // Progressive rendering: Show sections as data loads
+  // Show first 2-3 sections immediately if they have data, others show skeleton
+  const renderSectionsProgressively = () => {
+    const categoryKeys = Object.keys(usersByCategory);
+    const hasData = categoryKeys.length > 0;
+    
+    return categories.map((category, index) => {
+      const users = usersByCategory[category] || [];
+      const hasCategoryData = users.length > 0;
+      
+      // Show first 3 sections immediately if they have data, or show skeleton
+      if (loading && !hasCategoryData && index < 3) {
+        return (
+          <div key={`skeleton-${category}-${index}`}>
+            {renderSkeleton(category)}
+          </div>
+        );
+      }
+      
+      // Render actual carousel if data is available
+      return (
+        <div key={category}>
+          {renderCarousel(category, users)}
+        </div>
+      );
+    });
+  };
+
   return (
     <>
-      {loading
-        ? categories.map((category) => renderSkeleton(category))
-        : categories.map((category) => renderCarousel(category, usersByCategory[category] || []))}
+      {renderSectionsProgressively()}
     </>
   );
 }

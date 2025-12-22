@@ -114,6 +114,9 @@ exports.loginUser = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid email/phone or password" });
     }
+    
+    // ✅ Check if account is blocked (only "blocked" status prevents login)
+    // Note: "active" and "unblock" statuses allow login
     if (user.status === "blocked") {
       return res
         .status(403) // 403 Forbidden status code
@@ -149,6 +152,7 @@ exports.loginUser = async (req, res) => {
       email: user.email,
       phone: user.phone,
       userType: user.userType,
+      status: user.status, // ✅ Include status field
     };
 
     // Return success response with token and user data
@@ -156,7 +160,11 @@ exports.loginUser = async (req, res) => {
       success: true,
       message: "Login successful",
       token, // Include the JWT token in the response
-      user: req.session.user, // Return session data (optional)
+      user: {
+        ...req.session.user,
+        _id: user._id, // Include MongoDB _id
+        status: user.status, // ✅ Include status field
+      },
     });
   } catch (error) {
     console.error("Login Error:", error);
@@ -192,29 +200,41 @@ exports.getEducationUsers = async (req, res) => {
 
 exports.getHealthcareUsers = async (req, res) => {
   try {
-    // ✅ Fetch users where userType is 'education'
-    const users = await User.find({ userType: "healthcare" });
+    // ✅ Optimized query: Only select needed fields and filter active users
+    const users = await User.find(
+      { userType: "healthcare", status: "active" },
+      "name email phone category address description image contactInfo amenity establishment additionalInfo teachers" // Select only needed fields
+    )
+    .lean() // Use lean() for faster queries
+    .limit(500); // Limit results for faster response
 
     // ✅ Base URL setup dynamically
     const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-    // ✅ Corrected mapping of user data to include full image URL
+    // ✅ Optimized mapping
     const updatedUsers = users.map((item) => ({
-      ...item._doc,
-      image: item.image ? `${baseUrl}${item.image}` : "/default-image.png",
+      ...item,
+      image: item.image ? `${baseUrl}${item.image}` : `${baseUrl}/default-image.png`,
     }));
 
-    // ✅ Send the updated users list
+    // ✅ Send response immediately
     res.status(200).json({ success: true, users: updatedUsers });
   } catch (err) {
-    console.error("Error fetching users:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 exports.getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find();
+    // ✅ Optimized query: Select only needed fields and use lean()
+    const categories = await Category.find(
+      {},
+      "name ctitle categoryType userType image" // Select only needed fields
+    )
+    .lean() // Faster queries
+    .sort({ createdAt: -1 }) // Sort by newest first
+    .limit(50); // Limit for faster response
+    
     res.status(200).json(categories);
   } catch (error) {
     res.status(500).json({ message: "Error fetching categories", error });
@@ -223,23 +243,26 @@ exports.getAllCategories = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    // ✅ Fetch users where userType is 'education'
-    const users = await User.find({ userType: "education" });
+    // ✅ Optimized query: Only select needed fields and filter active users
+    const users = await User.find(
+      { userType: "education", status: "active" },
+      "name email phone category address description image contactInfo amenity establishment additionalInfo teachers" // Select only needed fields
+    )
+    .lean() // Use lean() for faster queries (returns plain JS objects)
+    .limit(500); // Limit results for faster response
 
     // ✅ Base URL setup dynamically
     const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-    // ✅ Corrected mapping of user data to include full image URL
+    // ✅ Optimized mapping - only process what's needed
     const updatedUsers = users.map((item) => ({
-      ...item._doc,
-      // In the backend, ensure the default image URL is also complete
-image: item.image ? `${baseUrl}${item.image}` : `${baseUrl}/default-image.png`,
+      ...item,
+      image: item.image ? `${baseUrl}${item.image}` : `${baseUrl}/default-image.png`,
     }));
 
-    // ✅ Send the updated users list
+    // ✅ Send response immediately
     res.status(200).json({ success: true, users: updatedUsers });
   } catch (err) {
-    console.error("Error fetching users:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -393,6 +416,8 @@ exports.updateProfile = async (req, res) => {
       });
 
       console.log("Fields to update:", updateFields);
+      console.log("Image file received:", req.file ? req.file.filename : "No file");
+      console.log("Image path to save:", updateFields.image || "No image");
       console.log("Updating user with email:", email);
 
       // Find and update the user by email
@@ -400,7 +425,7 @@ exports.updateProfile = async (req, res) => {
         { email }, 
         { $set: updateFields }, 
         { new: true, runValidators: true }
-      );
+      ).select('-password -tokens -verifytoken -verifytokenExpires'); // Exclude sensitive fields
 
       if (!updatedUser) {
         console.error("User not found after update attempt");
@@ -408,14 +433,25 @@ exports.updateProfile = async (req, res) => {
       }
 
       console.log("Profile updated successfully for:", updatedUser.email);
+      console.log("Updated user image path:", updatedUser.image);
 
       // Update session with new user data
       req.session.user = {
-        id: updatedUser._id,
+        _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
         phone: updatedUser.phone,
         userType: updatedUser.userType,
+        image: updatedUser.image,
+        address: updatedUser.address,
+        description: updatedUser.description,
+        contactInfo: updatedUser.contactInfo,
+        amenity: updatedUser.amenity,
+        establishment: updatedUser.establishment,
+        additionalInfo: updatedUser.additionalInfo,
+        teachers: updatedUser.teachers,
+        status: updatedUser.status,
+        category: updatedUser.category,
       };
 
       res.json({
@@ -740,9 +776,16 @@ exports.createJob = async (req, res) => {
 // Get all jobs
 exports.getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().sort({ createdAt: -1 }); // Sort by newest first
+    // ✅ Optimized query: Use lean() and limit results if needed
+    const jobs = await Job.find()
+      .select("jobTitle companyName location jobType salary jobDescription jobRequirements applicationDeadline howToApply createdAt")
+      .lean()
+      .sort({ createdAt: -1 })
+      .limit(100); // Limit to 100 most recent jobs
+    
     res.status(200).json(jobs);
   } catch (error) {
+    console.error("Error fetching jobs:", error);
     res.status(500).json({ message: "Error fetching jobs", error });
   }
 };

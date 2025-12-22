@@ -332,29 +332,31 @@ export default function UserDashboard() {
             </div>
 
             {/* Status Card */}
-            <div className={`p-6 rounded-2xl shadow-lg border-2 ${
-              user.status === 'active' 
-                ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
-                : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'
-            }`}>
-              <div className="flex items-center gap-4">
-                {user.status === 'active' ? (
-                  <CheckCircle className="w-10 h-10 text-green-600" />
-                ) : (
-                  <XCircle className="w-10 h-10 text-yellow-600" />
-                )}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">
-                    Status: <span className="capitalize">{user.status}</span>
-                  </h3>
-                  <p className="text-gray-600 mt-1">
-                    {user.status === 'active' 
-                      ? 'Your account is active and fully functional.' 
-                      : 'Your account is currently blocked. Please contact support.'}
-                  </p>
+            {user.status && (
+              <div className={`p-6 rounded-2xl shadow-lg border-2 ${
+                (user.status === 'active' || user.status === 'unblock') 
+                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+                  : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'
+              }`}>
+                <div className="flex items-center gap-4">
+                  {(user.status === 'active' || user.status === 'unblock') ? (
+                    <CheckCircle className="w-10 h-10 text-green-600" />
+                  ) : (
+                    <XCircle className="w-10 h-10 text-yellow-600" />
+                  )}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">
+                      Status: <span className="capitalize">{user.status === 'unblock' ? 'Active' : user.status}</span>
+                    </h3>
+                    <p className="text-gray-600 mt-1">
+                      {(user.status === 'active' || user.status === 'unblock')
+                        ? 'Your account is active and fully functional.' 
+                        : 'Your account is currently blocked. Please contact support.'}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Dashboard Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -435,16 +437,63 @@ export default function UserDashboard() {
       case "updateProfile":
         return (
           <div className="space-y-6">
-            <div className="border-b border-gray-200 pb-4">
-              <h2 className="text-2xl font-bold text-gray-800 capitalize">
-                Update {user.userType} Profile
-              </h2>
-              <p className="text-gray-600 mt-1">
-                Keep your profile up-to-date for the best experience.
-              </p>
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-[#17A2B8] to-[#1E2939] p-6 rounded-2xl shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                  <Edit3 className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white capitalize">
+                    Edit Profile
+                  </h2>
+                  <p className="text-white/90 mt-1">
+                    Update your {user.userType} profile information
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Picture Preview */}
+            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-100">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Current Profile Picture
+              </label>
+              {user.image ? (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="relative">
+                    <img
+                      src={user.image.startsWith('http') ? user.image : `${import.meta.env.VITE_BASEURI}${user.image}`}
+                      alt="Profile"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-[#17A2B8] shadow-lg"
+                      onError={(e) => {
+                        e.target.src = "/default-image.png";
+                      }}
+                    />
+                    <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-lg">
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-800 mb-1">Profile image saved</p>
+                    <p className="text-sm text-gray-600">Upload a new image below to replace</p>
+                    <p className="text-xs text-gray-500 mt-1">Recommended: Square image, max 5MB</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                    <Camera className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">No profile picture uploaded</p>
+                    <p className="text-xs text-gray-500 mt-1">Upload an image below to add your profile picture</p>
+                  </div>
+                </div>
+              )}
             </div>
         
-            <form onSubmit={handleSubmit} className="space-y-6 bg-gray-50 p-6 rounded-xl">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Name Input */}
                 <div>
@@ -514,141 +563,323 @@ export default function UserDashboard() {
               /> 
             </div>*/}
         
-            {/* Profile Picture Upload */}
-            <div className="flex items-center space-x-3">
-              <Camera className="w-6 h-6 text-orange-500" />
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="p-3 border border-gray-300 rounded-md w-full"
-              />
-            </div>
-        
-            {/* Description Textarea */}
-            <div className="flex items-center space-x-3">
-              <Edit3 className="w-6 h-6 text-red-500" />
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Update Description"
-                className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-red-500"
-              ></textarea>
-            </div>
-         {/* Contact Info Textarea */}
-         <div className="flex items-center space-x-3">
-              <Edit3 className="w-6 h-6 text-red-500" />
-              <textarea
-                name="contactInfo"
-                value={formData.contactInfo}
-                onChange={handleChange}
-                placeholder="Conatct information"
-                className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-red-500"
-              ></textarea>
-            </div>
-            {/* Amenity Textarea */}
-         <div className="flex items-center space-x-3">
-              <Edit3 className="w-6 h-6 text-yellow-400" />
-              <textarea
-                name="amenity"
-                value={formData.amenity}
-                onChange={handleChange}
-                placeholder="Add amenity"
-                className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-red-500"
-              ></textarea>
-            </div>
-             {/* Establishment */}
-         <div className="flex items-center space-x-3">
-              <Edit3 className="w-6 h-6 text-green-500" />
-              <textarea
-                name="establishment"
-                value={formData.establishment}
-                onChange={handleChange}
-                placeholder="Add Establishment"
-                className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-red-500"
-              ></textarea>
-            </div>
-            {/* Additional Info */}
-            <div className="flex items-center space-x-3 sm:col-span-2">
-              <Edit3 className="w-6 h-6 text-indigo-500" />
-              <textarea
-                name="additionalInfo"
-                value={formData.additionalInfo}
-                onChange={handleChange}
-                placeholder="Add Bio or Additional Details"
-                className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-indigo-500"
-              ></textarea>
-            </div>
-        
-            {/* Our Specialist Section */}
-            
-
-              <div className="sm:col-span-2 mt-8 p-6 bg-gray-100 rounded-lg shadow-inner">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Our Specialist</h3>
-
-                {formData.teachers.map((teacher, index) => (
-                  <div key={index} className="mb-4">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <User className="w-6 h-6 text-teal-500" />
-                      <input
-                        type="text"
-                        name="specialist"
-                        value={teacher.name}
-                        onChange={(e) => handleTeacherChange(index, "name", e.target.value)}
-                        placeholder="Enter Name"
-                        className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-teal-500"
-                      />
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <BookOpen className="w-6 h-6 text-orange-500" />
-                      <input
-                        type="text"
-                        name="qualification"
-                        value={teacher.qualification}
-                        onChange={(e) => handleTeacherChange(index, "qualification", e.target.value)}
-                        placeholder="Enter Specialization or Qualification"
-                        className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-orange-500"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeTeacher(index)}
-                      className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md shadow hover:bg-red-600"
-                    >
-                      Remove 
-                    </button>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={addTeacher}
-                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
-                >
-                  Add 
-                </button>
+              {/* Profile Picture Upload */}
+              <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-xl border-2 border-orange-200">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  <Camera className="w-5 h-5 inline mr-2 text-orange-500" />
+                  Profile Picture
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-3 border-2 border-dashed border-orange-300 rounded-xl bg-white hover:border-orange-400 transition-colors cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 file:cursor-pointer"
+                />
+                {profilePicture && (
+                  <p className="text-sm text-green-600 mt-2 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    {profilePicture.name} selected
+                  </p>
+                )}
               </div>
         
-            {/* Submit Button */}
-            <div className="mt-6 text-center sm:col-span-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500"
-              >
-                {loading ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-          </form>
+              {/* Description Textarea */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <Edit3 className="w-4 h-4 inline mr-2 text-[#17A2B8]" />
+                  Description
+                  {formData.description && (
+                    <span className="ml-2 text-xs text-green-600 font-normal flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Saved
+                    </span>
+                  )}
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description || ""}
+                  onChange={handleChange}
+                  placeholder="Enter a brief description about your institution/organization"
+                  rows="4"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                ></textarea>
+                {formData.description && (
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <span className="text-green-600">●</span>
+                    Current: {formData.description.substring(0, 60)}{formData.description.length > 60 ? '...' : ''}
+                  </p>
+                )}
+              </div>
+
+              {/* Contact Info Textarea */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <Phone className="w-4 h-4 inline mr-2 text-[#17A2B8]" />
+                  Contact Information
+                  {formData.contactInfo && (
+                    <span className="ml-2 text-xs text-green-600 font-normal flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Saved
+                    </span>
+                  )}
+                </label>
+                <textarea
+                  name="contactInfo"
+                  value={formData.contactInfo || ""}
+                  onChange={handleChange}
+                  placeholder="Enter contact details (email, phone, address, etc.)"
+                  rows="3"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                ></textarea>
+                {formData.contactInfo && (
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <span className="text-green-600">●</span>
+                    Current: {formData.contactInfo.substring(0, 60)}{formData.contactInfo.length > 60 ? '...' : ''}
+                  </p>
+                )}
+              </div>
+
+              {/* Amenity Textarea */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <CheckCircle className="w-4 h-4 inline mr-2 text-[#17A2B8]" />
+                  Amenities
+                  {formData.amenity && (
+                    <span className="ml-2 text-xs text-green-600 font-normal flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Saved
+                    </span>
+                  )}
+                </label>
+                <textarea
+                  name="amenity"
+                  value={formData.amenity || ""}
+                  onChange={handleChange}
+                  placeholder="List amenities (one per line):&#10;• WiFi&#10;• Parking&#10;• Library"
+                  rows="4"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                ></textarea>
+                {formData.amenity && (
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <span className="text-green-600">●</span>
+                    Current: {formData.amenity.split('\n')[0] || formData.amenity.substring(0, 60)}{formData.amenity.length > 60 ? '...' : ''}
+                  </p>
+                )}
+              </div>
+
+              {/* Establishment */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <Home className="w-4 h-4 inline mr-2 text-[#17A2B8]" />
+                  Establishment Details
+                  {formData.establishment && (
+                    <span className="ml-2 text-xs text-green-600 font-normal flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Saved
+                    </span>
+                  )}
+                </label>
+                <textarea
+                  name="establishment"
+                  value={formData.establishment || ""}
+                  onChange={handleChange}
+                  placeholder="Enter establishment year, history, or other details"
+                  rows="3"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                ></textarea>
+                {formData.establishment && (
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <span className="text-green-600">●</span>
+                    Current: {formData.establishment.substring(0, 60)}{formData.establishment.length > 60 ? '...' : ''}
+                  </p>
+                )}
+              </div>
+
+              {/* Additional Info */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <Info className="w-4 h-4 inline mr-2 text-[#17A2B8]" />
+                  Additional Information
+                  {formData.additionalInfo && (
+                    <span className="ml-2 text-xs text-green-600 font-normal flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Saved
+                    </span>
+                  )}
+                </label>
+                <textarea
+                  name="additionalInfo"
+                  value={formData.additionalInfo || ""}
+                  onChange={handleChange}
+                  placeholder="Add any additional information about your institution/organization"
+                  rows="4"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                ></textarea>
+                {formData.additionalInfo && (
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <span className="text-green-600">●</span>
+                    Current: {formData.additionalInfo.substring(0, 60)}{formData.additionalInfo.length > 60 ? '...' : ''}
+                  </p>
+                )}
+              </div>
         
-          {/* Status Message */}
-          {message && (
-            <div className="mt-4 text-center text-gray-700 bg-gray-100 p-3 rounded-md">
-              {message}
-            </div>
-          )}
+              {/* Our Specialist Section */}
+              <div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border-2 border-teal-200">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <User className="w-6 h-6 text-teal-600" />
+                    Our Specialists / Teachers
+                    {formData.teachers && formData.teachers.length > 0 && (
+                      <span className="ml-2 text-sm font-normal text-green-600 flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" />
+                        ({formData.teachers.length} {formData.teachers.length === 1 ? 'specialist' : 'specialists'} saved)
+                      </span>
+                    )}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={addTeacher}
+                    className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all font-semibold flex items-center gap-2"
+                  >
+                    <span>+</span> Add Specialist
+                  </button>
+                </div>
+
+                {!formData.teachers || formData.teachers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 bg-white/50 rounded-lg">
+                    <User className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                    <p>No specialists added yet. Click "Add Specialist" to get started.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {formData.teachers.map((teacher, index) => (
+                      <div key={index} className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
+                            <span className="text-teal-600 font-bold text-sm">{index + 1}</span>
+                          </div>
+                          {(teacher.name || teacher.qualification) && (
+                            <span className="text-xs text-green-600 font-semibold flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" />
+                              Saved
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">
+                              Specialist Name
+                            </label>
+                            <div className="relative">
+                              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                              <input
+                                type="text"
+                                value={teacher.name || ""}
+                                onChange={(e) => handleTeacherChange(index, "name", e.target.value)}
+                                placeholder="Enter specialist name"
+                                className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">
+                              Qualification / Specialization
+                            </label>
+                            <div className="relative">
+                              <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                              <input
+                                type="text"
+                                value={teacher.qualification || ""}
+                                onChange={(e) => handleTeacherChange(index, "qualification", e.target.value)}
+                                placeholder="Enter qualification"
+                                className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removeTeacher(index)}
+                          className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-all font-semibold flex items-center justify-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Remove Specialist
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+        
+              {/* Submit Button */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Reset form to original user data
+                    setFormData({
+                      id: user._id || user.id || "",
+                      name: user.name || "",
+                      address: user.address || "",
+                      phone: user.phone || "",
+                      email: user.email || "",
+                      description: user.description || "",
+                      contactInfo: user.contactInfo || "",
+                      amenity: user.amenity || "",
+                      establishment: user.establishment || "",
+                      additionalInfo: user.additionalInfo || "",
+                      teachers: Array.isArray(user.teachers) ? user.teachers : [],
+                    });
+                    setProfilePicture(null);
+                    setMessage("");
+                  }}
+                  className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl shadow-md hover:bg-gray-300 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-8 py-3 bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <Activity className="w-5 h-5 animate-spin" />
+                      Saving Changes...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5" />
+                      Save Changes
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+        
+            {/* Status Message */}
+            {message && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`mt-4 p-4 rounded-xl shadow-lg ${
+                  message.includes("success") || message.includes("Success")
+                    ? "bg-green-50 border-2 border-green-200 text-green-800"
+                    : "bg-blue-50 border-2 border-blue-200 text-blue-800"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {message.includes("success") || message.includes("Success") ? (
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <Info className="w-5 h-5 text-blue-600" />
+                  )}
+                  <p className="font-semibold">{message}</p>
+                </div>
+              </motion.div>
+            )}
         </div>
         
 

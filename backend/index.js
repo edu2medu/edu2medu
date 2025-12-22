@@ -118,11 +118,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log('Request Origin:', origin); // Debugging log
+    // Remove console.log in production for faster response
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.error(`Blocked by CORS: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -137,8 +136,9 @@ app.use(cors(corsOptions));
 // Handle preflight requests (OPTIONS) with same CORS options
 app.options('*', cors(corsOptions));
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Optimize JSON parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Session Middleware

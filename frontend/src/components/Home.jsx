@@ -35,17 +35,23 @@ const Home = () => {
       try {
         let response;
         if (cachedData) {
-          // Use cached data for instant display
+          // Use cached data for instant display (< 100ms)
           response = { data: cachedData };
           setCategoriesLoading(false);
+          setAllCategories(response.data || []);
         } else {
-          response = await deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getallcategories`);
+          // Fetch fresh data with timeout (max 2 seconds for categories)
+          const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getallcategories`);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 2000)
+          );
+          
+          response = await Promise.race([fetchPromise, timeoutPromise]);
           setCachedData(cacheKey, response.data);
+          setAllCategories(response.data || []);
         }
-        
-        setAllCategories(response.data || []);
       } catch (error) {
-        console.error("Error fetching categories", error);
+        setAllCategories([]);
       } finally {
         setCategoriesLoading(false);
       }

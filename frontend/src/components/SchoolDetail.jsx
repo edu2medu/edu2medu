@@ -4,8 +4,6 @@ import {
   FaArrowLeft,
   FaMapMarkerAlt,
   FaPhoneAlt,
-  FaQuoteLeft,
-  FaQuoteRight,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -161,26 +159,24 @@ const SchoolDetail = () => {
                 animate={isLoaded ? "visible" : "hidden"}
                 className="mb-6 sm:mb-8 bg-gradient-to-r from-sky-50 to-blue-50 p-4 sm:p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-3 left-3 sm:top-4 sm:left-4 text-sky-200 text-lg sm:text-xl" />
-                <div className="flex flex-col sm:flex-row justify-between gap-4">
-                  <div className="sm:w-1/2 sm:pr-4">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                  <div className="w-full sm:w-1/2 sm:pr-4">
                     <h3 className="text-lg sm:text-xl font-bold text-sky-700 mb-2">
                       Contact Information
                     </h3>
-                    <div className="text-sm sm:text-base">
+                    <div className="text-sm sm:text-base break-words">
                       {formatTextWithLineBreaks(user.contactInfo)}
                     </div>
                   </div>
-                  <div className="sm:w-1/2">
+                  <div className="w-full sm:w-1/2 sm:pl-4">
                     <h3 className="text-lg sm:text-xl font-semibold text-sky-700 mb-2">
                       Establishment
                     </h3>
-                    <div className="text-sm sm:text-base font-serif">
+                    <div className="text-sm sm:text-base font-serif break-words">
                       {formatTextWithLineBreaks(user.establishment)}
                     </div>
                   </div>
                 </div>
-                <FaQuoteRight className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 text-sky-200 text-lg sm:text-xl" />
               </motion.div>
 
               {/* Location and Call Now Button Section */}
@@ -238,16 +234,14 @@ const SchoolDetail = () => {
                 animate={isLoaded ? "visible" : "hidden"}
                 className="mb-6 sm:mb-8 bg-gradient-to-r from-teal-50 to-cyan-50 p-4 sm:p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-3 left-3 sm:top-4 sm:left-4 text-teal-200 text-lg sm:text-xl" />
-                <div className="ml-6 mr-6">
+                <div className="px-2 sm:px-6">
                   <h3 className="text-lg sm:text-xl font-semibold text-teal-700 mb-2">
                     About
                   </h3>
-                  <div className="text-sm sm:text-base">
+                  <div className="text-sm sm:text-base break-words leading-relaxed">
                     {formatTextWithLineBreaks(user.additionalInfo)}
                   </div>
                 </div>
-                <FaQuoteRight className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 text-teal-200 text-lg sm:text-xl" />
               </motion.div>
 
               {/* Amenity Section */}
@@ -264,16 +258,14 @@ const SchoolDetail = () => {
                 animate={isLoaded ? "visible" : "hidden"}
                 className="mb-6 sm:mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-3 left-3 sm:top-4 sm:left-4 text-cyan-200 text-lg sm:text-xl" />
-                <div className="ml-6 mr-6">
+                <div className="px-2 sm:px-6">
                   <h3 className="text-lg sm:text-xl font-semibold text-cyan-700 mb-2">
                     Amenity
                   </h3>
-                  <div className="text-sm sm:text-base">
+                  <div className="text-sm sm:text-base break-words">
                     {formatTextWithLineBreaks(user.amenity, true)}
                   </div>
                 </div>
-                <FaQuoteRight className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 text-cyan-200 text-lg sm:text-xl" />
               </motion.div>
 
               {/* Specialization Section */}
@@ -290,8 +282,7 @@ const SchoolDetail = () => {
                 animate={isLoaded ? "visible" : "hidden"}
                 className="mb-6 sm:mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
               >
-                <FaQuoteLeft className="absolute top-3 left-3 sm:top-4 sm:left-4 text-cyan-200 text-lg sm:text-xl" />
-                <div className="p-4 sm:p-6">
+                <div className="p-2 sm:p-4 md:p-6">
                   <h1 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
                     Specialist Information
                   </h1>
@@ -309,7 +300,7 @@ const SchoolDetail = () => {
                               : teacher.qualification || "Unknown";
 
                           return (
-                            <li key={index} className="text-base sm:text-lg font-semibold">
+                            <li key={index} className="text-sm sm:text-base md:text-lg font-semibold break-words">
                               <span className="text-teal-700">
                                 {teacherName}
                               </span>{" "}
@@ -325,7 +316,6 @@ const SchoolDetail = () => {
                     )}
                   </div>
                 </div>
-                <FaQuoteRight className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 text-cyan-200 text-lg sm:text-xl" />
               </motion.div>
             </div>
           </motion.div>

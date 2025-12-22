@@ -19,5 +19,8 @@ const JobSchema = new mongoose.Schema(
   { timestamps: true } // Adds createdAt & updatedAt fields
 );
 
+// Add indexes for faster queries
+JobSchema.index({ createdAt: -1 }); // For sorting by newest first
+
 const Job = mongoose.model("Job", JobSchema);
 module.exports = Job;

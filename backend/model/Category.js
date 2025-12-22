@@ -8,5 +8,8 @@ const CategorySchema = new mongoose.Schema({
   image: { type: String },
 }, { timestamps: true });
 
+// Add indexes for faster queries
+CategorySchema.index({ userType: 1 }); // For filtering by userType
+
 const Category = mongoose.model('Category', CategorySchema);
 module.exports = Category;

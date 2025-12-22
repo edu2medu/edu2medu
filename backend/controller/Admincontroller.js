@@ -286,7 +286,10 @@ exports.addCategory = (req, res) => {
         }
 
         const { name, ctitle, categoryType,userType } = req.body;
-        const image = req.file ? `uploads/${req.file.filename}` : null;  
+        const image = req.file ? `/uploads/${req.file.filename}` : null;  
+
+        console.log("Category upload - File received:", req.file ? req.file.filename : "No file");
+        console.log("Category upload - Image path:", image);
 
         if (!name || !ctitle || !categoryType || !image ||!userType) {
             return res.status(400).json({ 
@@ -305,6 +308,7 @@ exports.addCategory = (req, res) => {
             });
 
             await newCategory.save();
+            console.log("Category saved successfully with image:", newCategory.image);
             res.status(201).json({ 
                 success: true, 
                 message: "Category added successfully", 
@@ -339,7 +343,10 @@ exports.createNews = (req, res) => {
       }
 
       const { title, content, moreContent } = req.body;
-      const image = req.file ? `uploads/${req.file.filename}` : null;
+      const image = req.file ? `/uploads/${req.file.filename}` : null;
+
+      console.log("News upload - File received:", req.file ? req.file.filename : "No file");
+      console.log("News upload - Image path:", image);
 
       // ✅ Correct the validation check
       if (!title || !content || !moreContent || !image) {
@@ -358,6 +365,7 @@ exports.createNews = (req, res) => {
           });
 
           await news.save();
+          console.log("News saved successfully with image:", news.image);
           res.status(201).json({
               success: true,
               message: "News added successfully",
@@ -367,7 +375,8 @@ exports.createNews = (req, res) => {
           console.error("Database error:", error);
           res.status(500).json({
               success: false,
-              message: "Failed to add news"
+              message: "Failed to add news",
+              error: process.env.NODE_ENV === 'development' ? error.message : undefined
           });
       }
   });
