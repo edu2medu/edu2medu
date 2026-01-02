@@ -109,7 +109,7 @@ type:String
 // Add indexes for faster queries
 UserSchema.index({ userType: 1, status: 1 }); // For getAllUsers and getHealthcareUsers
 UserSchema.index({ category: 1, status: 1 }); // For category-based queries
-UserSchema.index({ email: 1 }); // Already unique, but explicit index
+
 UserSchema.index({ userType: 1, category: 1, status: 1 }); // Composite index for common queries
 
 const User = mongoose.model("User", UserSchema);

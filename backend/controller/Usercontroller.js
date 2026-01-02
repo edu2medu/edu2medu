@@ -114,7 +114,7 @@ exports.loginUser = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid email/phone or password" });
     }
-    
+
     // ✅ Check if account is blocked (only "blocked" status prevents login)
     // Note: "active" and "unblock" statuses allow login
     if (user.status === "blocked") {
@@ -146,25 +146,34 @@ exports.loginUser = async (req, res) => {
     );
 
     // Store user session (optional, if you still want to use sessions)
-    req.session.user = {
-      id: user.userId,
+    // Construct safe user object with all profile fields
+    const userPayload = {
+      _id: user._id,
       name: user.name,
       email: user.email,
       phone: user.phone,
       userType: user.userType,
-      status: user.status, // ✅ Include status field
+      status: user.status,
+      image: user.image,
+      address: user.address,
+      description: user.description,
+      contactInfo: user.contactInfo,
+      amenity: user.amenity,
+      establishment: user.establishment,
+      additionalInfo: user.additionalInfo,
+      teachers: user.teachers,
+      category: user.category
     };
+
+    // Store user session
+    req.session.user = userPayload;
 
     // Return success response with token and user data
     res.json({
       success: true,
       message: "Login successful",
       token, // Include the JWT token in the response
-      user: {
-        ...req.session.user,
-        _id: user._id, // Include MongoDB _id
-        status: user.status, // ✅ Include status field
-      },
+      user: userPayload,
     });
   } catch (error) {
     console.error("Login Error:", error);
@@ -203,10 +212,10 @@ exports.getHealthcareUsers = async (req, res) => {
     // ✅ Optimized query: Only select needed fields and filter active users
     const users = await User.find(
       { userType: "healthcare", status: "active" },
-      "name email phone category address description image contactInfo amenity establishment additionalInfo teachers" // Select only needed fields
+      "name email phone category address description image contactInfo amenity establishment additionalInfo teachers status" // Select only needed fields
     )
-    .lean() // Use lean() for faster queries
-    .limit(500); // Limit results for faster response
+      .lean() // Use lean() for faster queries
+      .limit(500); // Limit results for faster response
 
     // ✅ Base URL setup dynamically
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -231,10 +240,10 @@ exports.getAllCategories = async (req, res) => {
       {},
       "name ctitle categoryType userType image" // Select only needed fields
     )
-    .lean() // Faster queries
-    .sort({ createdAt: -1 }) // Sort by newest first
-    .limit(50); // Limit for faster response
-    
+      .lean() // Faster queries
+      .sort({ createdAt: -1 }) // Sort by newest first
+      .limit(50); // Limit for faster response
+
     res.status(200).json(categories);
   } catch (error) {
     res.status(500).json({ message: "Error fetching categories", error });
@@ -246,10 +255,10 @@ exports.getAllUsers = async (req, res) => {
     // ✅ Optimized query: Only select needed fields and filter active users
     const users = await User.find(
       { userType: "education", status: "active" },
-      "name email phone category address description image contactInfo amenity establishment additionalInfo teachers" // Select only needed fields
+      "name email phone category address description image contactInfo amenity establishment additionalInfo teachers status" // Select only needed fields
     )
-    .lean() // Use lean() for faster queries (returns plain JS objects)
-    .limit(500); // Limit results for faster response
+      .lean() // Use lean() for faster queries (returns plain JS objects)
+      .limit(500); // Limit results for faster response
 
     // ✅ Base URL setup dynamically
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -286,11 +295,11 @@ exports.requestCall = async (req, res) => {
     }
 
     // Create and save contact
-    const newContact = new Contact({ 
-      name: name.trim(), 
-      phone: phone.trim() 
+    const newContact = new Contact({
+      name: name.trim(),
+      phone: phone.trim()
     });
-    
+
     await newContact.save();
 
     res.status(201).json({
@@ -299,22 +308,22 @@ exports.requestCall = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in requestCall:", error);
-    
+
     // Handle specific MongoDB errors
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        error: "Validation error", 
-        details: error.message 
-      });
-    }
-    
-    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
-      return res.status(500).json({ 
-        error: "Database error. Please try again later." 
+      return res.status(400).json({
+        error: "Validation error",
+        details: error.message
       });
     }
 
-    res.status(500).json({ 
+    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+      return res.status(500).json({
+        error: "Database error. Please try again later."
+      });
+    }
+
+    res.status(500).json({
       error: "Internal Server Error",
       message: process.env.NODE_ENV === 'development' ? error.message : "Something went wrong. Please try again."
     });
@@ -378,10 +387,10 @@ exports.updateProfile = async (req, res) => {
 
       // Build updateFields object - exclude email and handle all fields properly
       let updateFields = {};
-      
+
       // List of allowed fields to update
       const allowedFields = [
-        'name', 'phone', 'address', 'description', 'contactInfo', 
+        'name', 'phone', 'address', 'description', 'contactInfo',
         'amenity', 'establishment', 'additionalInfo', 'teachers', 'category'
       ];
 
@@ -422,8 +431,8 @@ exports.updateProfile = async (req, res) => {
 
       // Find and update the user by email
       const updatedUser = await User.findOneAndUpdate(
-        { email }, 
-        { $set: updateFields }, 
+        { email },
+        { $set: updateFields },
         { new: true, runValidators: true }
       ).select('-password -tokens -verifytoken -verifytokenExpires'); // Exclude sensitive fields
 
@@ -461,8 +470,8 @@ exports.updateProfile = async (req, res) => {
       });
     } catch (error) {
       console.error("Error updating profile:", error);
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         message: "Internal server error",
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
@@ -512,7 +521,7 @@ exports.sendPasswordLink = async (req, res) => {
     // Send the reset link
     const frontendUrl = process.env.FRONTEND_URL || "https://edu2medu.com";
     const resetLink = `${frontendUrl}/forgotpassword/${user._id}/${token}`;
-    
+
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -667,11 +676,11 @@ exports.searchEducation = async (req, res) => {
     }
 
     // Add full image URL to each user
-// Corrected version in both searchEducation and searchHealthcare
-const usersWithImageUrls = results.map(user => ({
-  ...user._doc,
-  image: user.image ? `${baseUrl}${user.image}` : `${baseUrl}/default-image.png`,
-}));
+    // Corrected version in both searchEducation and searchHealthcare
+    const usersWithImageUrls = results.map(user => ({
+      ...user._doc,
+      image: user.image ? `${baseUrl}${user.image}` : `${baseUrl}/default-image.png`,
+    }));
 
     res.status(200).json(usersWithImageUrls);
   } catch (error) {
@@ -699,11 +708,11 @@ exports.searchHealthcare = async (req, res) => {
     }
 
     // Add full image URL to each user
-// Corrected version in both searchEducation and searchHealthcare
-const usersWithImageUrls = results.map(user => ({
-  ...user._doc,
-  image: user.image ? `${baseUrl}${user.image}` : `${baseUrl}/default-image.png`,
-}));
+    // Corrected version in both searchEducation and searchHealthcare
+    const usersWithImageUrls = results.map(user => ({
+      ...user._doc,
+      image: user.image ? `${baseUrl}${user.image}` : `${baseUrl}/default-image.png`,
+    }));
 
     res.status(200).json(usersWithImageUrls);
   } catch (error) {
@@ -749,11 +758,11 @@ exports.createJob = async (req, res) => {
     !companyName ||
     !location ||
     !jobType ||
-    !salary||
+    !salary ||
     !jobDescription ||
     !jobRequirements ||
-    !applicationDeadline||
-    ! howToApply
+    !applicationDeadline ||
+    !howToApply
   ) {
     console.log("❌ Missing fields in request");
     return res.status(400).json({
@@ -770,7 +779,7 @@ exports.createJob = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error", error });
   }
-  
+
 };
 
 // Get all jobs
@@ -782,7 +791,7 @@ exports.getAllJobs = async (req, res) => {
       .lean()
       .sort({ createdAt: -1 })
       .limit(100); // Limit to 100 most recent jobs
-    
+
     res.status(200).json(jobs);
   } catch (error) {
     console.error("Error fetching jobs:", error);
@@ -794,33 +803,33 @@ exports.getAllJobs = async (req, res) => {
 exports.deleteJob = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     if (!id) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Job ID is required" 
+      return res.status(400).json({
+        success: false,
+        message: "Job ID is required"
       });
     }
 
     const deletedJob = await Job.findByIdAndDelete(id);
-    
+
     if (!deletedJob) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Job not found" 
+      return res.status(404).json({
+        success: false,
+        message: "Job not found"
       });
     }
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       message: "Job deleted successfully",
-      job: deletedJob 
+      job: deletedJob
     });
   } catch (error) {
     console.error("Error deleting job:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Error deleting job", 
+    res.status(500).json({
+      success: false,
+      message: "Error deleting job",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
