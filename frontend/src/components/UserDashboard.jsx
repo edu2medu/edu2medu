@@ -64,22 +64,22 @@ export default function UserDashboard() {
   const handleJobFormChange = (e) => {
     setJobFormData({ ...jobFormData, [e.target.name]: e.target.value });
   };
-  
+
   const handleJobSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-  
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASEURI}/user/createjob`,
         jobFormData,
         {
           headers: { "Content-Type": "application/json" },
-           withCredentials: true,
+          withCredentials: true,
         }
       );
-  
+
       setMessage(response.data.message);
       setJobFormData({
         jobTitle: "",
@@ -176,17 +176,17 @@ export default function UserDashboard() {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-  
+
     if (!user || !user.email) {
       setMessage("Email is missing.");
       setLoading(false);
       return;
     }
-  
+
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("email", user.email);
-  
+
       // Send all fields including empty strings to allow clearing fields
       Object.keys(formData).forEach((key) => {
         if (key !== "teachers" && key !== "id" && key !== "email") {
@@ -197,25 +197,25 @@ export default function UserDashboard() {
           }
         }
       });
-  
+
       if (profilePicture) {
         formDataToSend.append("image", profilePicture);
       }
-  
+
       // Ensure teachers is a valid JSON string before appending
       if (Array.isArray(formData.teachers)) {
         formDataToSend.append("teachers", JSON.stringify(formData.teachers));
       }
-  
+
       const response = await axios.patch(
         `${import.meta.env.VITE_BASEURI}/user/updateProfile`,
         formDataToSend,
         {
           headers: { "Content-Type": "multipart/form-data" },
-           withCredentials: true,
+          withCredentials: true,
         }
       );
-  
+
       if (response.data.success && response.data.user) {
         // Update user state with the updated user data from server
         const updatedUser = {
@@ -223,12 +223,12 @@ export default function UserDashboard() {
           ...response.data.user,
           _id: response.data.user._id || user._id,
         };
-        
+
         setUser(updatedUser);
-        
+
         // Update sessionStorage with the updated user data
         sessionStorage.setItem("user", JSON.stringify(updatedUser));
-        
+
         // Update formData to reflect the saved changes
         setFormData({
           id: updatedUser._id || "",
@@ -243,11 +243,22 @@ export default function UserDashboard() {
           additionalInfo: updatedUser.additionalInfo || "",
           teachers: updatedUser.teachers || [],
         });
-        
+
         // Clear profile picture state after successful upload
         setProfilePicture(null);
-        
+
         setMessage(response.data.message || "Profile updated successfully!");
+
+        // Redirect to dashboard after a short delay to show success message
+        setTimeout(() => {
+          // If using tabs, switch to dashboard tab
+          setActiveTab("dashboard");
+          // Or if you want to navigate to the route (if specific route exists)
+          // navigate('/user-dashboard'); 
+
+          // Scroll to top
+          window.scrollTo(0, 0);
+        }, 1500);
       } else {
         setMessage(response.data.message || "Profile updated successfully!");
       }
@@ -258,7 +269,7 @@ export default function UserDashboard() {
       setLoading(false);
     }
   };
-  
+
 
   useEffect(() => {
     const userData = JSON.parse(sessionStorage.getItem("user"));
@@ -333,11 +344,10 @@ export default function UserDashboard() {
 
             {/* Status Card */}
             {user.status && (
-              <div className={`p-6 rounded-2xl shadow-lg border-2 ${
-                (user.status === 'active' || user.status === 'unblock') 
-                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+              <div className={`p-6 rounded-2xl shadow-lg border-2 ${(user.status === 'active' || user.status === 'unblock')
+                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
                   : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'
-              }`}>
+                }`}>
                 <div className="flex items-center gap-4">
                   {(user.status === 'active' || user.status === 'unblock') ? (
                     <CheckCircle className="w-10 h-10 text-green-600" />
@@ -350,7 +360,7 @@ export default function UserDashboard() {
                     </h3>
                     <p className="text-gray-600 mt-1">
                       {(user.status === 'active' || user.status === 'unblock')
-                        ? 'Your account is active and fully functional.' 
+                        ? 'Your account is active and fully functional.'
                         : 'Your account is currently blocked. Please contact support.'}
                     </p>
                   </div>
@@ -360,7 +370,7 @@ export default function UserDashboard() {
 
             {/* Dashboard Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div 
+              <div
                 onClick={() => setActiveTab("updateProfile")}
                 className="group bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
               >
@@ -374,8 +384,8 @@ export default function UserDashboard() {
                   </div>
                 </div>
               </div>
-              
-              <div 
+
+              <div
                 onClick={() => setActiveTab("postJob")}
                 className="group bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
               >
@@ -389,8 +399,8 @@ export default function UserDashboard() {
                   </div>
                 </div>
               </div>
-              
-              <div 
+
+              <div
                 onClick={() => setActiveTab("myJobs")}
                 className="group bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
               >
@@ -404,8 +414,8 @@ export default function UserDashboard() {
                   </div>
                 </div>
               </div>
-              
-              <div 
+
+              <div
                 onClick={() => setActiveTab("support")}
                 className="group bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
               >
@@ -419,7 +429,7 @@ export default function UserDashboard() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="group bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-2xl shadow-lg">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -492,7 +502,7 @@ export default function UserDashboard() {
                 </div>
               )}
             </div>
-        
+
             <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Name Input */}
@@ -512,7 +522,7 @@ export default function UserDashboard() {
                     />
                   </div>
                 </div>
-        
+
                 {/* Address Input */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -530,7 +540,7 @@ export default function UserDashboard() {
                     />
                   </div>
                 </div>
-        
+
                 {/* Phone Input */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -549,9 +559,9 @@ export default function UserDashboard() {
                   </div>
                 </div>
               </div>
-        
-            {/* Email Input */}
-            {/* <div className="flex items-center space-x-3">
+
+              {/* Email Input */}
+              {/* <div className="flex items-center space-x-3">
               <Mail className="w-6 h-6 text-purple-500" />
               <input
                 type="email"
@@ -562,7 +572,7 @@ export default function UserDashboard() {
                 className="p-3 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-purple-500"
               /> 
             </div>*/}
-        
+
               {/* Profile Picture Upload */}
               <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-xl border-2 border-orange-200">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -582,7 +592,7 @@ export default function UserDashboard() {
                   </p>
                 )}
               </div>
-        
+
               {/* Description Textarea */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -722,7 +732,7 @@ export default function UserDashboard() {
                   </p>
                 )}
               </div>
-        
+
               {/* Our Specialist Section */}
               <div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border-2 border-teal-200">
                 <div className="flex items-center justify-between mb-6">
@@ -812,7 +822,7 @@ export default function UserDashboard() {
                   </div>
                 )}
               </div>
-        
+
               {/* Submit Button */}
               <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6 border-t border-gray-200">
                 <button
@@ -858,17 +868,16 @@ export default function UserDashboard() {
                 </button>
               </div>
             </form>
-        
+
             {/* Status Message */}
             {message && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`mt-4 p-4 rounded-xl shadow-lg ${
-                  message.includes("success") || message.includes("Success")
+                className={`mt-4 p-4 rounded-xl shadow-lg ${message.includes("success") || message.includes("Success")
                     ? "bg-green-50 border-2 border-green-200 text-green-800"
                     : "bg-blue-50 border-2 border-blue-200 text-blue-800"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   {message.includes("success") || message.includes("Success") ? (
@@ -880,209 +889,209 @@ export default function UserDashboard() {
                 </div>
               </motion.div>
             )}
-        </div>
-        
+          </div>
+
 
         );
-        case "postJob":
-  return (
-    <div className="space-y-6">
-      <div className="border-b border-gray-200 pb-4">
-        <h2 className="text-2xl font-bold text-gray-800">Post a Job</h2>
-        <p className="text-gray-600 mt-1">
-          Fill out the form below to post a new job opportunity.
-        </p>
-      </div>
-
-      <form onSubmit={handleJobSubmit} className="space-y-6 bg-gray-50 p-6 rounded-xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Job Title */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Job Title <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Edit3 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                name="jobTitle"
-                value={jobFormData.jobTitle}
-                onChange={handleJobFormChange}
-                placeholder="Enter job title"
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
-                required
-              />
+      case "postJob":
+        return (
+          <div className="space-y-6">
+            <div className="border-b border-gray-200 pb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Post a Job</h2>
+              <p className="text-gray-600 mt-1">
+                Fill out the form below to post a new job opportunity.
+              </p>
             </div>
-          </div>
 
-          {/* Company Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Company Name <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                name="companyName"
-                value={jobFormData.companyName}
-                onChange={handleJobFormChange}
-                placeholder="Enter company name"
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
-                required
-              />
-            </div>
-          </div>
+            <form onSubmit={handleJobSubmit} className="space-y-6 bg-gray-50 p-6 rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Job Title */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Job Title <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Edit3 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      name="jobTitle"
+                      value={jobFormData.jobTitle}
+                      onChange={handleJobFormChange}
+                      placeholder="Enter job title"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
+                      required
+                    />
+                  </div>
+                </div>
 
-          {/* Location */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Location <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                name="location"
-                value={jobFormData.location}
-                onChange={handleJobFormChange}
-                placeholder="Enter job location"
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
-                required
-              />
-            </div>
-          </div>
+                {/* Company Name */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Company Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      name="companyName"
+                      value={jobFormData.companyName}
+                      onChange={handleJobFormChange}
+                      placeholder="Enter company name"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
+                      required
+                    />
+                  </div>
+                </div>
 
-          {/* Job Type */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Job Type <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Activity className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <select
-                name="jobType"
-                value={jobFormData.jobType}
-                onChange={handleJobFormChange}
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white appearance-none"
-                required
-              >
-                <option value="">Select Job Type</option>
-                <option value="Full-Time">Full-Time</option>
-                <option value="Part-Time">Part-Time</option>
-                <option value="Contract">Contract</option>
-                <option value="Internship">Internship</option>
-              </select>
-            </div>
-          </div>
+                {/* Location */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Location <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      name="location"
+                      value={jobFormData.location}
+                      onChange={handleJobFormChange}
+                      placeholder="Enter job location"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
+                      required
+                    />
+                  </div>
+                </div>
 
-          {/* Salary */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Salary (INR)
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">₹</span>
-              <input
-                type="number"
-                name="salary"
-                value={jobFormData.salary}
-                onChange={handleJobFormChange}
-                placeholder="Enter salary amount"
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
-                onWheel={(e) => e.target.blur()}
-                style={{ appearance: "textfield" }}
-              />
-            </div>
-          </div>
+                {/* Job Type */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Job Type <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Activity className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <select
+                      name="jobType"
+                      value={jobFormData.jobType}
+                      onChange={handleJobFormChange}
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white appearance-none"
+                      required
+                    >
+                      <option value="">Select Job Type</option>
+                      <option value="Full-Time">Full-Time</option>
+                      <option value="Part-Time">Part-Time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Internship">Internship</option>
+                    </select>
+                  </div>
+                </div>
 
-          {/* Job Description */}
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Job Description <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              name="jobDescription"
-              value={jobFormData.jobDescription}
-              onChange={handleJobFormChange}
-              placeholder="Describe the job role and responsibilities"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
-              rows="4"
-              required
-            ></textarea>
-          </div>
+                {/* Salary */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Salary (INR)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">₹</span>
+                    <input
+                      type="number"
+                      name="salary"
+                      value={jobFormData.salary}
+                      onChange={handleJobFormChange}
+                      placeholder="Enter salary amount"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
+                      onWheel={(e) => e.target.blur()}
+                      style={{ appearance: "textfield" }}
+                    />
+                  </div>
+                </div>
 
-          {/* Job Requirements */}
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Job Requirements <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              name="jobRequirements"
-              value={jobFormData.jobRequirements}
-              onChange={handleJobFormChange}
-              placeholder="List the required qualifications and skills"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
-              rows="4"
-              required
-            ></textarea>
-          </div>
+                {/* Job Description */}
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Job Description <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="jobDescription"
+                    value={jobFormData.jobDescription}
+                    onChange={handleJobFormChange}
+                    placeholder="Describe the job role and responsibilities"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                    rows="4"
+                    required
+                  ></textarea>
+                </div>
 
-          {/* Application Deadline */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Application Deadline <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="date"
-                name="applicationDeadline"
-                value={jobFormData.applicationDeadline}
-                onChange={handleJobFormChange}
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
-                required
-              />
-            </div>
-          </div>
+                {/* Job Requirements */}
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Job Requirements <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="jobRequirements"
+                    value={jobFormData.jobRequirements}
+                    onChange={handleJobFormChange}
+                    placeholder="List the required qualifications and skills"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                    rows="4"
+                    required
+                  ></textarea>
+                </div>
 
-          {/* How to Apply */}
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              How to Apply <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              name="howToApply"
-              value={jobFormData.howToApply}
-              onChange={handleJobFormChange}
-              placeholder="Provide instructions for applicants"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
-              rows="4"
-              required
-            ></textarea>
-          </div>
-        </div>
+                {/* Application Deadline */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Application Deadline <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="date"
+                      name="applicationDeadline"
+                      value={jobFormData.applicationDeadline}
+                      onChange={handleJobFormChange}
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white"
+                      required
+                    />
+                  </div>
+                </div>
 
-        {/* Submit Button */}
-        <div className="pt-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#17A2B8] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Posting..." : "Post Job"}
-          </button>
-        </div>
-      </form>
+                {/* How to Apply */}
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    How to Apply <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="howToApply"
+                    value={jobFormData.howToApply}
+                    onChange={handleJobFormChange}
+                    placeholder="Provide instructions for applicants"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#17A2B8] focus:border-[#17A2B8] transition-all bg-white resize-none"
+                    rows="4"
+                    required
+                  ></textarea>
+                </div>
+              </div>
 
-        {/* Status Message */}
-        {message && (
-          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl text-center">
-            <p className="text-green-700 font-medium">{message}</p>
+              {/* Submit Button */}
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#17A2B8] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Posting..." : "Post Job"}
+                </button>
+              </div>
+            </form>
+
+            {/* Status Message */}
+            {message && (
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl text-center">
+                <p className="text-green-700 font-medium">{message}</p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    );
+        );
 
       case "myJobs":
         return (
@@ -1130,7 +1139,7 @@ export default function UserDashboard() {
                         <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
-                    
+
                     <div className="mt-4 space-y-2 text-sm text-gray-600">
                       <p><strong>Description:</strong> {job.jobDescription}</p>
                       <p><strong>Requirements:</strong> {job.jobRequirements}</p>
@@ -1144,98 +1153,97 @@ export default function UserDashboard() {
 
             {/* Status Message */}
             {message && (
-              <div className={`mt-6 p-4 rounded-xl text-center ${
-                message.includes("success") || message.includes("Success")
+              <div className={`mt-6 p-4 rounded-xl text-center ${message.includes("success") || message.includes("Success")
                   ? "bg-green-50 border border-green-200 text-green-700"
                   : "bg-red-50 border border-red-200 text-red-700"
-              }`}>
+                }`}>
                 <p className="font-medium">{message}</p>
               </div>
             )}
           </div>
         );
 
-        // case "status":
-        //   return (
-        //     <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
-        //       <h2 className="text-xl font-semibold mb-4">{user.userType} Status</h2>
-        
-        //       {user.status === "block" ? (
-        //         <div>
-        //           {/* Blocked Status Content */}
-        //           <div className="flex items-center space-x-3 text-red-500">
-        //             <XCircle className="w-8 h-8" />
-        //             <p className="text-lg font-semibold">Your account is currently blocked.</p>
-        //           </div>
-        //           <p className="mt-2 text-red-600">If you believe this is a mistake, please contact our support team or request an unblock by sending a message to the admin.</p>
-        
-        //           {/* Instructional Content */}
-        //           <div className="mt-6 bg-yellow-100 p-4 rounded-md">
-        //             <h3 className="text-lg font-semibold text-yellow-600">How to Request Unblock:</h3>
-        //             <ul className="list-inside list-disc text-gray-600">
-        //               <li>Describe the issue you're facing clearly and provide any relevant details.</li>
-        //               <li>Ensure to mention your username or account email for quick identification.</li>
-        //               <li>If this is a system-generated block, the admin will review and resolve it accordingly.</li>
-        //             </ul>
-        //           </div>
-        
-        //           {/* Unblock Request Form */}
-        //           <textarea
-        //             className="w-full p-2 border border-gray-300 rounded-md mt-4"
-        //             placeholder="Write your message to the admin..."
-        //           ></textarea>
-        //           <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600">
-        //             Send Request
-        //           </button>
-        
-        //           {/* Support Contact Info */}
-        //           <div className="mt-6 bg-gray-100 p-4 rounded-md">
-        //             <h3 className="text-lg font-semibold">Need Immediate Assistance?</h3>
-        //             <p className="text-gray-600">
-        //               You can also get in touch with our support team by calling or emailing us:
-        //             </p>
-        //             <ul className="text-blue-500">
-        //               <li><strong>Phone:</strong> +1 800 123 4567</li>
-        //               <li><strong>Email:</strong> support@example.com</li>
-        //             </ul>
-        //           </div>
-        //         </div>
-        //       ) : (
-        //         <div>
-        //           {/* Active Status Content */}
-        //           <div className="flex items-center space-x-3 text-green-500">
-        //             <CheckCircle className="w-8 h-8" />
-        //             <p className="text-lg font-semibold">Your account is active and fully functional.</p>
-        //           </div>
-        
-        //           {/* Encouragement Content */}
-        //           <div className="mt-6 bg-green-100 p-4 rounded-md">
-        //             <h3 className="text-lg font-semibold text-green-600">Stay Active and Explore More:</h3>
-        //             <p className="text-gray-600">
-        //               Enjoy your time on the platform! Make sure to regularly update your profile to enhance your experience. Here are some things you can do:
-        //             </p>
-        //             <ul className="list-inside list-disc text-gray-600">
-        //               <li>Complete your profile with the latest information.</li>
-        //               <li>Check out new features that are available to you.</li>
-        //               <li>Review your privacy settings to make sure your data is secure.</li>
-        //             </ul>
-        //           </div>
-        
-        //           {/* Additional Links */}
-        //           <div className="mt-6 bg-gray-100 p-4 rounded-md">
-        //             <h3 className="text-lg font-semibold">Need Help or Have Questions?</h3>
-        //             <p className="text-gray-600">
-        //               If you need assistance or have any questions about your account or how to make the most of our platform, feel free to contact our support team.
-        //             </p>
-        //             <ul className="text-blue-500">
-        //               <li><strong>Help Center:</strong> <a href="#" className="hover:underline">Visit our Help Center</a></li>
-        //               <li><strong>Contact Us:</strong> <a href="#" className="hover:underline">Submit a Support Request</a></li>
-        //             </ul>
-        //           </div>
-        //         </div>
-        //       )}
-        //     </div>
-        //   );
+      // case "status":
+      //   return (
+      //     <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
+      //       <h2 className="text-xl font-semibold mb-4">{user.userType} Status</h2>
+
+      //       {user.status === "block" ? (
+      //         <div>
+      //           {/* Blocked Status Content */}
+      //           <div className="flex items-center space-x-3 text-red-500">
+      //             <XCircle className="w-8 h-8" />
+      //             <p className="text-lg font-semibold">Your account is currently blocked.</p>
+      //           </div>
+      //           <p className="mt-2 text-red-600">If you believe this is a mistake, please contact our support team or request an unblock by sending a message to the admin.</p>
+
+      //           {/* Instructional Content */}
+      //           <div className="mt-6 bg-yellow-100 p-4 rounded-md">
+      //             <h3 className="text-lg font-semibold text-yellow-600">How to Request Unblock:</h3>
+      //             <ul className="list-inside list-disc text-gray-600">
+      //               <li>Describe the issue you're facing clearly and provide any relevant details.</li>
+      //               <li>Ensure to mention your username or account email for quick identification.</li>
+      //               <li>If this is a system-generated block, the admin will review and resolve it accordingly.</li>
+      //             </ul>
+      //           </div>
+
+      //           {/* Unblock Request Form */}
+      //           <textarea
+      //             className="w-full p-2 border border-gray-300 rounded-md mt-4"
+      //             placeholder="Write your message to the admin..."
+      //           ></textarea>
+      //           <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600">
+      //             Send Request
+      //           </button>
+
+      //           {/* Support Contact Info */}
+      //           <div className="mt-6 bg-gray-100 p-4 rounded-md">
+      //             <h3 className="text-lg font-semibold">Need Immediate Assistance?</h3>
+      //             <p className="text-gray-600">
+      //               You can also get in touch with our support team by calling or emailing us:
+      //             </p>
+      //             <ul className="text-blue-500">
+      //               <li><strong>Phone:</strong> +1 800 123 4567</li>
+      //               <li><strong>Email:</strong> support@example.com</li>
+      //             </ul>
+      //           </div>
+      //         </div>
+      //       ) : (
+      //         <div>
+      //           {/* Active Status Content */}
+      //           <div className="flex items-center space-x-3 text-green-500">
+      //             <CheckCircle className="w-8 h-8" />
+      //             <p className="text-lg font-semibold">Your account is active and fully functional.</p>
+      //           </div>
+
+      //           {/* Encouragement Content */}
+      //           <div className="mt-6 bg-green-100 p-4 rounded-md">
+      //             <h3 className="text-lg font-semibold text-green-600">Stay Active and Explore More:</h3>
+      //             <p className="text-gray-600">
+      //               Enjoy your time on the platform! Make sure to regularly update your profile to enhance your experience. Here are some things you can do:
+      //             </p>
+      //             <ul className="list-inside list-disc text-gray-600">
+      //               <li>Complete your profile with the latest information.</li>
+      //               <li>Check out new features that are available to you.</li>
+      //               <li>Review your privacy settings to make sure your data is secure.</li>
+      //             </ul>
+      //           </div>
+
+      //           {/* Additional Links */}
+      //           <div className="mt-6 bg-gray-100 p-4 rounded-md">
+      //             <h3 className="text-lg font-semibold">Need Help or Have Questions?</h3>
+      //             <p className="text-gray-600">
+      //               If you need assistance or have any questions about your account or how to make the most of our platform, feel free to contact our support team.
+      //             </p>
+      //             <ul className="text-blue-500">
+      //               <li><strong>Help Center:</strong> <a href="#" className="hover:underline">Visit our Help Center</a></li>
+      //               <li><strong>Contact Us:</strong> <a href="#" className="hover:underline">Submit a Support Request</a></li>
+      //             </ul>
+      //           </div>
+      //         </div>
+      //       )}
+      //     </div>
+      //   );
       case "support":
         return (
           <div className="space-y-6">
@@ -1243,7 +1251,7 @@ export default function UserDashboard() {
               <h2 className="text-2xl font-bold text-gray-800 capitalize">{user.userType} Support</h2>
               <p className="text-gray-600 mt-1">Need help? Our support team is here to assist you.</p>
             </div>
-        
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div
                 className="group bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
@@ -1259,7 +1267,7 @@ export default function UserDashboard() {
                   </div>
                 </div>
               </div>
-        
+
               <div
                 className="group bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
                 onClick={() => window.location.href = 'mailto:support.edu2medu@gmail.com'}
@@ -1275,7 +1283,7 @@ export default function UserDashboard() {
                 </div>
               </div>
             </div>
-        
+
             <div className="bg-gray-50 p-6 rounded-xl">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Submit a Support Request</h3>
               <textarea
@@ -1322,58 +1330,53 @@ export default function UserDashboard() {
           {/* Navigation */}
           <ul className="space-y-2">
             <li
-              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${
-                activeTab === "dashboard"
+              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "dashboard"
                   ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
                   : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
-              }`}
+                }`}
               onClick={() => { setActiveTab("dashboard"); setIsSidebarOpen(false); }}
             >
-              <Home className="w-5 h-5" /> 
+              <Home className="w-5 h-5" />
               <span className="font-medium">Dashboard</span>
             </li>
             <li
-              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${
-                activeTab === "updateProfile"
+              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "updateProfile"
                   ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
                   : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
-              }`}
+                }`}
               onClick={() => { setActiveTab("updateProfile"); setIsSidebarOpen(false); }}
             >
-              <User className="w-5 h-5" /> 
+              <User className="w-5 h-5" />
               <span className="font-medium">Update Profile</span>
             </li>
             <li
-              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${
-                activeTab === "postJob"
+              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "postJob"
                   ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
                   : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
-              }`}
+                }`}
               onClick={() => { setActiveTab("postJob"); setIsSidebarOpen(false); }}
             >
-              <Edit3 className="w-5 h-5" /> 
+              <Edit3 className="w-5 h-5" />
               <span className="font-medium">Post a Job</span>
             </li>
             <li
-              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${
-                activeTab === "myJobs"
+              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "myJobs"
                   ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
                   : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
-              }`}
+                }`}
               onClick={() => { setActiveTab("myJobs"); setIsSidebarOpen(false); }}
             >
-              <Calendar className="w-5 h-5" /> 
+              <Calendar className="w-5 h-5" />
               <span className="font-medium">My Jobs</span>
             </li>
             <li
-              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${
-                activeTab === "support"
+              className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "support"
                   ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
                   : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
-              }`}
+                }`}
               onClick={() => { setActiveTab("support"); setIsSidebarOpen(false); }}
             >
-              <HelpCircle className="w-5 h-5" /> 
+              <HelpCircle className="w-5 h-5" />
               <span className="font-medium">Support</span>
             </li>
           </ul>
@@ -1387,7 +1390,7 @@ export default function UserDashboard() {
             navigate("/login");
           }}
         >
-          <LogOut className="w-5 h-5" /> 
+          <LogOut className="w-5 h-5" />
           <span className="font-semibold">Logout</span>
         </button>
       </div>

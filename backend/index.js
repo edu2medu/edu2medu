@@ -43,7 +43,7 @@
 // app.options('*', cors());// Handle preflight requests
 // app.use(express.urlencoded({ extended: true }));
 // app.use(express.json());
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // // Session Middleware (use the SESSION_SECRET from .env file)
 // app.use(

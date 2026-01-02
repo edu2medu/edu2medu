@@ -373,6 +373,10 @@ exports.updateProfile = async (req, res) => {
       return res.status(500).json({ success: false, message: "File upload failed" });
     }
 
+    console.log("--- Update Profile Request ---");
+    console.log("Body:", req.body);
+    console.log("File:", req.file);
+
     try {
       const { email } = req.body;
       if (!email) {
