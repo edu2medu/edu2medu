@@ -23,6 +23,7 @@ import {
   Trash2,
   Calendar,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -207,6 +208,18 @@ export default function UserDashboard() {
         formDataToSend.append("teachers", JSON.stringify(formData.teachers));
       }
 
+      // Debug logging
+      console.log("--- Sending Profile Update ---");
+      console.log("Profile picture file:", profilePicture);
+      console.log("FormData entries:");
+      for (let pair of formDataToSend.entries()) {
+        if (pair[0] === 'image') {
+          console.log(`  ${pair[0]}:`, pair[1].name, `(${pair[1].size} bytes)`);
+        } else {
+          console.log(`  ${pair[0]}:`, pair[1]);
+        }
+      }
+
       const response = await axios.patch(
         `${import.meta.env.VITE_BASEURI}/user/updateProfile`,
         formDataToSend,
@@ -345,8 +358,8 @@ export default function UserDashboard() {
             {/* Status Card */}
             {user.status && (
               <div className={`p-6 rounded-2xl shadow-lg border-2 ${(user.status === 'active' || user.status === 'unblock')
-                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
-                  : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'
+                ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+                : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'
                 }`}>
                 <div className="flex items-center gap-4">
                   {(user.status === 'active' || user.status === 'unblock') ? (
@@ -875,8 +888,8 @@ export default function UserDashboard() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={`mt-4 p-4 rounded-xl shadow-lg ${message.includes("success") || message.includes("Success")
-                    ? "bg-green-50 border-2 border-green-200 text-green-800"
-                    : "bg-blue-50 border-2 border-blue-200 text-blue-800"
+                  ? "bg-green-50 border-2 border-green-200 text-green-800"
+                  : "bg-blue-50 border-2 border-blue-200 text-blue-800"
                   }`}
               >
                 <div className="flex items-center gap-2">
@@ -1154,8 +1167,8 @@ export default function UserDashboard() {
             {/* Status Message */}
             {message && (
               <div className={`mt-6 p-4 rounded-xl text-center ${message.includes("success") || message.includes("Success")
-                  ? "bg-green-50 border border-green-200 text-green-700"
-                  : "bg-red-50 border border-red-200 text-red-700"
+                ? "bg-green-50 border border-green-200 text-green-700"
+                : "bg-red-50 border border-red-200 text-red-700"
                 }`}>
                 <p className="font-medium">{message}</p>
               </div>
@@ -1331,8 +1344,8 @@ export default function UserDashboard() {
           <ul className="space-y-2">
             <li
               className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "dashboard"
-                  ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
-                  : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
+                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                 }`}
               onClick={() => { setActiveTab("dashboard"); setIsSidebarOpen(false); }}
             >
@@ -1341,8 +1354,8 @@ export default function UserDashboard() {
             </li>
             <li
               className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "updateProfile"
-                  ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
-                  : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
+                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                 }`}
               onClick={() => { setActiveTab("updateProfile"); setIsSidebarOpen(false); }}
             >
@@ -1351,8 +1364,8 @@ export default function UserDashboard() {
             </li>
             <li
               className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "postJob"
-                  ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
-                  : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
+                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                 }`}
               onClick={() => { setActiveTab("postJob"); setIsSidebarOpen(false); }}
             >
@@ -1361,8 +1374,8 @@ export default function UserDashboard() {
             </li>
             <li
               className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "myJobs"
-                  ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
-                  : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
+                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                 }`}
               onClick={() => { setActiveTab("myJobs"); setIsSidebarOpen(false); }}
             >
@@ -1371,8 +1384,8 @@ export default function UserDashboard() {
             </li>
             <li
               className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${activeTab === "support"
-                  ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
-                  : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
+                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                 }`}
               onClick={() => { setActiveTab("support"); setIsSidebarOpen(false); }}
             >

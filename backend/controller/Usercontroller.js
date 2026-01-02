@@ -409,6 +409,9 @@ exports.updateProfile = async (req, res) => {
       // Handle file upload
       if (req.file) {
         updateFields.image = `/uploads/${req.file.filename}`;
+        console.log("✅ Image will be saved to DB:", updateFields.image);
+      } else {
+        console.log("⚠️ No file received - image will not be updated");
       }
 
       // Ensure `teachers` is correctly parsed if received as a string
