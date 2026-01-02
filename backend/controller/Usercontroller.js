@@ -10,6 +10,7 @@ const path = require("path");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const { storage } = require('../utils/cloudinary');
 
 // Define the transporter directly in the controller
 const transporter = nodemailer.createTransport({
@@ -191,13 +192,15 @@ exports.getEducationUsers = async (req, res) => {
         .json({ success: false, message: "No education users found" });
     }
 
-    // ✅ Base URL for images
+    // ✅ Base URL for images (only if not already a Cloudinary URL)
     const baseUrl = `${req.protocol}://${req.get("host")}/`;
 
     // ✅ Update image URLs for each user
     const updatedUsers = educationUsers.map((user) => ({
       ...user._doc,
-      image: user.image ? `${baseUrl}${user.image}` : "/default-image.png",
+      image: user.image 
+        ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
+        : "/default-image.png",
     }));
 
     res.status(200).json({ success: true, users: updatedUsers });
@@ -220,10 +223,12 @@ exports.getHealthcareUsers = async (req, res) => {
     // ✅ Base URL setup dynamically
     const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-    // ✅ Optimized mapping
+    // ✅ Optimized mapping - check if image is already a Cloudinary URL
     const updatedUsers = users.map((item) => ({
       ...item,
-      image: item.image ? `${baseUrl}${item.image}` : `${baseUrl}/default-image.png`,
+      image: item.image 
+        ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
+        : `${baseUrl}/default-image.png`,
     }));
 
     // ✅ Send response immediately
@@ -263,10 +268,12 @@ exports.getAllUsers = async (req, res) => {
     // ✅ Base URL setup dynamically
     const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-    // ✅ Optimized mapping - only process what's needed
+    // ✅ Optimized mapping - check if image is already a Cloudinary URL
     const updatedUsers = users.map((item) => ({
       ...item,
-      image: item.image ? `${baseUrl}${item.image}` : `${baseUrl}/default-image.png`,
+      image: item.image 
+        ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
+        : `${baseUrl}/default-image.png`,
     }));
 
     // ✅ Send response immediately
@@ -332,17 +339,6 @@ exports.requestCall = async (req, res) => {
 
 //update profile
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Create uploads directory if it doesn't exist
-
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
@@ -359,7 +355,7 @@ const upload = multer({
     } else {
       cb(
         new Error(
-          "Invalid file type. Only JPEG, PNG, GIF,AVIF, and WebP are allowed."
+          "Invalid file type. Only JPEG, PNG, GIF, AVIF, and WebP are allowed."
         ),
         false
       );
@@ -406,9 +402,9 @@ exports.updateProfile = async (req, res) => {
         }
       });
 
-      // Handle file upload
+      // Handle file upload - Cloudinary returns full URL in req.file.path
       if (req.file) {
-        updateFields.image = `/uploads/${req.file.filename}`;
+        updateFields.image = req.file.path;
         console.log("✅ Image will be saved to DB:", updateFields.image);
       } else {
         console.log("⚠️ No file received - image will not be updated");
@@ -688,11 +684,12 @@ exports.searchEducation = async (req, res) => {
       return res.status(404).json({ message: "No education results found" });
     }
 
-    // Add full image URL to each user
-    // Corrected version in both searchEducation and searchHealthcare
+    // Add full image URL to each user - check if already Cloudinary URL
     const usersWithImageUrls = results.map(user => ({
       ...user._doc,
-      image: user.image ? `${baseUrl}${user.image}` : `${baseUrl}/default-image.png`,
+      image: user.image 
+        ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
+        : `${baseUrl}/default-image.png`,
     }));
 
     res.status(200).json(usersWithImageUrls);
@@ -720,11 +717,12 @@ exports.searchHealthcare = async (req, res) => {
       return res.status(404).json({ message: "No healthcare results found" });
     }
 
-    // Add full image URL to each user
-    // Corrected version in both searchEducation and searchHealthcare
+    // Add full image URL to each user - check if already Cloudinary URL
     const usersWithImageUrls = results.map(user => ({
       ...user._doc,
-      image: user.image ? `${baseUrl}${user.image}` : `${baseUrl}/default-image.png`,
+      image: user.image 
+        ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
+        : `${baseUrl}/default-image.png`,
     }));
 
     res.status(200).json(usersWithImageUrls);

@@ -10,6 +10,7 @@ const path=require("path")
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const { storage } = require('../utils/cloudinary');
 
 const bcrypt = require("bcrypt");
 
@@ -249,25 +250,14 @@ exports.adminLogin = async (req, res) => {
 
 
 
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // Create uploads directory if it doesn't exist
-        
-        cb(null, "uploads/");
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    },
-});
-
 const upload = multer({ 
   storage: storage,
   fileFilter: (req, file, cb) => {
-      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
       if (allowedTypes.includes(file.mimetype)) {
           cb(null, true);
       } else {
-          cb(new Error("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed."), false);
+          cb(new Error("Invalid file type. Only JPEG, PNG, GIF, WebP, and AVIF are allowed."), false);
       }
   }
 });
@@ -286,10 +276,11 @@ exports.addCategory = (req, res) => {
         }
 
         const { name, ctitle, categoryType,userType } = req.body;
-        const image = req.file ? `/uploads/${req.file.filename}` : null;  
+        // Cloudinary returns the full URL in req.file.path
+        const image = req.file ? req.file.path : null;  
 
         console.log("Category upload - File received:", req.file ? req.file.filename : "No file");
-        console.log("Category upload - Image path:", image);
+        console.log("Category upload - Image URL:", image);
 
         if (!name || !ctitle || !categoryType || !image ||!userType) {
             return res.status(400).json({ 
@@ -343,10 +334,11 @@ exports.createNews = (req, res) => {
       }
 
       const { title, content, moreContent } = req.body;
-      const image = req.file ? `/uploads/${req.file.filename}` : null;
+      // Cloudinary returns the full URL in req.file.path
+      const image = req.file ? req.file.path : null;
 
       console.log("News upload - File received:", req.file ? req.file.filename : "No file");
-      console.log("News upload - Image path:", image);
+      console.log("News upload - Image URL:", image);
 
       // ✅ Correct the validation check
       if (!title || !content || !moreContent || !image) {
@@ -361,7 +353,7 @@ exports.createNews = (req, res) => {
               title,
               content,
               moreContent,
-              image, // ✅ Save only the image path, not `req.body.newsImage`
+              image, // ✅ Save Cloudinary URL
           });
 
           await news.save();
@@ -400,11 +392,13 @@ exports.getAllNews = async (req, res) => {
           });
       }
 
-      // ✅ Base URL add karne ke liye
+      // Check if image is already a Cloudinary URL (starts with http) or needs baseUrl
       const baseUrl = `${req.protocol}://${req.get("host")}/`;
       const updatedNews = news.map(item => ({
           ...item._doc,
-          image: item.image ? `${baseUrl}${item.image}` : "/default-image.png"
+          image: item.image 
+            ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
+            : "/default-image.png"
       }));
 
       res.status(200).json({
