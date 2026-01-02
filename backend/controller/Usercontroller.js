@@ -445,7 +445,7 @@ exports.updateProfile = async (req, res) => {
       console.log("Updated user image path:", updatedUser.image);
 
       // Update session with new user data
-      req.session.user = {
+      const userPayload = {
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
@@ -463,10 +463,16 @@ exports.updateProfile = async (req, res) => {
         category: updatedUser.category,
       };
 
+      // Store user session
+      req.session.user = userPayload;
+
+      // Store user session
+
+
       res.json({
         success: true,
         message: "Profile updated successfully",
-        user: updatedUser,
+        user: userPayload,
       });
     } catch (error) {
       console.error("Error updating profile:", error);
