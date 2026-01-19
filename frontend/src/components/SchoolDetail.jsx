@@ -132,7 +132,7 @@ const SchoolDetail = () => {
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#17A2B8] tracking-tight">
                   {user.name}
                 </h2>
-                <div className="w-16 h-1 bg-[#17A2B8] opacity-30 mx-auto my-3 rounded-full"></div>
+                <div className="w-16 h-1 bg-[#E76F51] mx-auto my-3 rounded-full"></div>
                 <p className="text-gray-500 text-sm sm:text-lg italic leading-relaxed">
                   {user.description || "Discover premium services and facilities dedicated to your growth and well-being."}
                 </p>
