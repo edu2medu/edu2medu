@@ -31,7 +31,7 @@ const Home = () => {
       setCategoriesLoading(true);
       const cacheKey = 'all-categories';
       const cachedData = getCachedData(cacheKey);
-      
+
       try {
         let response;
         if (cachedData) {
@@ -42,10 +42,10 @@ const Home = () => {
         } else {
           // Fetch fresh data with timeout (max 2 seconds for categories)
           const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getallcategories`);
-          const timeoutPromise = new Promise((_, reject) => 
+          const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Request timeout')), 2000)
           );
-          
+
           response = await Promise.race([fetchPromise, timeoutPromise]);
           setCachedData(cacheKey, response.data);
           setAllCategories(response.data || []);
@@ -71,55 +71,55 @@ const Home = () => {
     setSelectedOption("");
     navigate(category === "Education" ? "/" : "/healthcare");
   };
-const handleSearch = async () => {
-  if (!searchQuery.trim()) {
-    setError("Please enter a search term.");
-    return;
-  }
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      setError("Please enter a search term.");
+      return;
+    }
 
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    const endpoint =
-      selectedCategory === "Education"
-        ? `${import.meta.env.VITE_BASEURI}/user/searchEducation`
-        : `${import.meta.env.VITE_BASEURI}/user/searchHealthcare`;
+    try {
+      const endpoint =
+        selectedCategory === "Education"
+          ? `${import.meta.env.VITE_BASEURI}/user/searchEducation`
+          : `${import.meta.env.VITE_BASEURI}/user/searchHealthcare`;
 
-    const response = await deduplicatedGet(endpoint, {
-      params: { query: searchQuery },
-    });
-
-    if (response.status === 200) {
-      // Filter results to only show active users
-      const activeResults = response.data.filter(user => user.status === 'active');
-      
-      navigate("/search-results", {
-        state: { 
-          searchResults: activeResults, 
-          selectedCategory 
-        },
+      const response = await deduplicatedGet(endpoint, {
+        params: { query: searchQuery },
       });
-    }
-  } catch (error) {
-    if (error.response) {
-      // Server responded with a status code outside 2xx
-      setError(error.response.data?.message || "Server error occurred");
-    } else if (error.request) {
-      // Request was made but no response received
-      setError("Network error. Please check your connection.");
-    } else {
-      // Something happened in setting up the request
-      setError("An unexpected error occurred.");
-    }
-    console.error("Search error:", error);
-  } finally {
-    setLoading(false);
-  }
-};
 
-// Debounced search handler (300ms delay)
-const debouncedSearch = debounce(handleSearch, 300);
+      if (response.status === 200) {
+        // Filter results to only show active or unblocked users
+        const activeResults = response.data.filter(user => user.status === 'active' || user.status === 'unblock');
+
+        navigate("/search-results", {
+          state: {
+            searchResults: activeResults,
+            selectedCategory
+          },
+        });
+      }
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status code outside 2xx
+        setError(error.response.data?.message || "Server error occurred");
+      } else if (error.request) {
+        // Request was made but no response received
+        setError("Network error. Please check your connection.");
+      } else {
+        // Something happened in setting up the request
+        setError("An unexpected error occurred.");
+      }
+      console.error("Search error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounced search handler (300ms delay)
+  const debouncedSearch = debounce(handleSearch, 300);
 
   // Handle category click - navigate to category page
   const handleCategoryClick = (category) => {
@@ -156,13 +156,12 @@ const debouncedSearch = debounce(handleSearch, 300);
         {["Education", "Healthcare"].map((category) => (
           <button
             key={category}
-            className={`px-6 py-2 rounded-md text-lg font-bold transition-all ${
-              selectedCategory === category
+            className={`px-6 py-2 rounded-md text-lg font-bold transition-all ${selectedCategory === category
                 ? category === "Education"
                   ? "bg-[#E76F51] text-white"
                   : "bg-[#17A2B8] text-white"
                 : "bg-gray-200 text-black hover:bg-opacity-80"
-            }`}
+              }`}
             onClick={() => handleCategoryChange(category)}
           >
             {category}
@@ -178,11 +177,10 @@ const debouncedSearch = debounce(handleSearch, 300);
         transition={{ duration: 1, type: "spring", stiffness: 100 }}
       >
         <span
-          className={`bg-gradient-to-r from-white ${
-            selectedCategory === "Education"
+          className={`bg-gradient-to-r from-white ${selectedCategory === "Education"
               ? "to-[#E76F51]"
               : "to-[#17A2B8]"
-          } bg-clip-text text-transparent`}
+            } bg-clip-text text-transparent`}
         >
           {selectedCategory === "Education"
             ? "Find Your Dream School!"
@@ -194,11 +192,10 @@ const debouncedSearch = debounce(handleSearch, 300);
       <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mt-6 flex justify-center items-center">
         <div className="flex items-center w-full max-w-md relative">
           <SearchIcon
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-              selectedCategory === "Education"
+            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${selectedCategory === "Education"
                 ? "text-[#E76F51]"
                 : "text-[#17A2B8]"
-            }`}
+              }`}
           />
           <input
             type="text"
@@ -214,9 +211,8 @@ const debouncedSearch = debounce(handleSearch, 300);
             onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           />
           <button
-            className={`absolute right-1 top-1/2 transform -translate-y-1/2 ${
-              selectedCategory === "Education" ? "bg-[#E76F51]" : "bg-[#17A2B8]"
-            } text-white p-2 rounded-md hover:bg-opacity-80 transition duration-300 ease-in-out transform hover:scale-110`}
+            className={`absolute right-1 top-1/2 transform -translate-y-1/2 ${selectedCategory === "Education" ? "bg-[#E76F51]" : "bg-[#17A2B8]"
+              } text-white p-2 rounded-md hover:bg-opacity-80 transition duration-300 ease-in-out transform hover:scale-110`}
             onClick={handleSearch}
           >
             <SearchIcon className="w-5 h-5" />
@@ -231,11 +227,10 @@ const debouncedSearch = debounce(handleSearch, 300);
           [...Array(5)].map((_, index) => (
             <div
               key={index}
-              className={`h-6 w-20 sm:w-24 bg-gray-300 rounded animate-pulse mx-auto ${
-                selectedCategory === "Education"
+              className={`h-6 w-20 sm:w-24 bg-gray-300 rounded animate-pulse mx-auto ${selectedCategory === "Education"
                   ? "bg-[#E76F51]/30"
                   : "bg-[#17A2B8]/30"
-              }`}
+                }`}
             ></div>
           ))
         ) : filteredCategories.length > 0 ? (
@@ -244,11 +239,10 @@ const debouncedSearch = debounce(handleSearch, 300);
             return (
               <motion.span
                 key={category._id || categoryName}
-                className={`font-bold text-center sm:text-left cursor-pointer text-xs sm:text-sm md:text-base transition duration-300 px-2 py-1 rounded-md hover:bg-white/10 ${
-                  selectedCategory === "Education"
+                className={`font-bold text-center sm:text-left cursor-pointer text-xs sm:text-sm md:text-base transition duration-300 px-2 py-1 rounded-md hover:bg-white/10 ${selectedCategory === "Education"
                     ? "text-[#E76F51] hover:text-[#d34c2a]"
                     : "text-[#17A2B8] hover:text-[#117585]"
-                }`}
+                  }`}
                 onClick={() => handleCategoryClick(category)}
                 title={category.description || categoryName}
                 whileHover={{ scale: 1.1 }}
@@ -260,11 +254,10 @@ const debouncedSearch = debounce(handleSearch, 300);
           })
         ) : (
           // Fallback if no categories found
-          <span className={`text-sm col-span-full ${
-            selectedCategory === "Education"
+          <span className={`text-sm col-span-full ${selectedCategory === "Education"
               ? "text-[#E76F51]"
               : "text-[#17A2B8]"
-          }`}>
+            }`}>
             No categories available
           </span>
         )}

@@ -26,7 +26,7 @@ function MedicalCl() {
     const fetchUsers = async () => {
       const cacheKey = 'all-users-healthcare';
       const cachedData = getCachedData(cacheKey);
-      
+
       try {
         let response;
         if (cachedData) {
@@ -38,7 +38,7 @@ function MedicalCl() {
             const categorizedUsers = {};
             categories.forEach((category) => {
               categorizedUsers[category] = response.data.users.filter(
-                (user) => user.category === category && user.status === 'active'
+                (user) => user.category === category && (user.status === 'active' || user.status === 'unblock')
               );
             });
             setUsersByCategory(categorizedUsers);
@@ -46,19 +46,19 @@ function MedicalCl() {
         } else {
           // Fetch fresh data with timeout (max 3 seconds)
           const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getHealthcareUsers`);
-          const timeoutPromise = new Promise((_, reject) => 
+          const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Request timeout')), 3000)
           );
-          
+
           response = await Promise.race([fetchPromise, timeoutPromise]);
           setCachedData(cacheKey, response.data);
-          
+
           // Process and display immediately
           if (response.data.success && Array.isArray(response.data.users)) {
             const categorizedUsers = {};
             categories.forEach((category) => {
               categorizedUsers[category] = response.data.users.filter(
-                (user) => user.category === category && user.status === 'active'
+                (user) => user.category === category && (user.status === 'active' || user.status === 'unblock')
               );
             });
             setUsersByCategory(categorizedUsers);
@@ -71,13 +71,13 @@ function MedicalCl() {
         setLoading(false);
       }
     };
-    
+
     fetchUsers();
   }, []);
 
   // Skeleton Loading Component
   const renderSkeleton = () => (
-   <div className="py-8 md:py-12 relative z-10">
+    <div className="py-8 md:py-12 relative z-10">
       <header className="mb-6 px-6 md:px-16">
         <h1 className="text-3xl font-extrabold text-gray-900 border-l-4 border-blue-500 pl-4 animate-pulse">
           Loading...
@@ -168,11 +168,11 @@ function MedicalCl() {
   const renderSectionsProgressively = () => {
     const categoryKeys = Object.keys(usersByCategory);
     const hasData = categoryKeys.length > 0;
-    
+
     return categories.map((category, index) => {
       const users = usersByCategory[category] || [];
       const hasCategoryData = users.length > 0;
-      
+
       // Show first 3 sections immediately if they have data, or show skeleton
       if (loading && !hasCategoryData && index < 3) {
         return (
@@ -181,7 +181,7 @@ function MedicalCl() {
           </div>
         );
       }
-      
+
       // Render actual carousel if data is available
       return (
         <div key={category}>

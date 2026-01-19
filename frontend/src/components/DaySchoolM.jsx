@@ -23,23 +23,23 @@ function DaySchoolM() {
   const navigate = useNavigate();
 
   useEffect(() => {
-  axios
-    .get(`${import.meta.env.VITE_BASEURI}/user/getAllUsers`)
-    .then((response) => {
-      if (response.data.success && Array.isArray(response.data.users)) {
-        const categorizedUsers = {};
-        categories.forEach((category) => {
-          categorizedUsers[category] = response.data.users.filter(
-            (user) => user.category === category && user.status === 'active'
-          );
-        });
-        setUsersByCategory(categorizedUsers);
-      } else {
-        console.error('Invalid API response format:', response.data);
-      }
-    })
-    .catch((error) => console.error('Error fetching categories:', error));
-}, []);
+    axios
+      .get(`${import.meta.env.VITE_BASEURI}/user/getAllUsers`)
+      .then((response) => {
+        if (response.data.success && Array.isArray(response.data.users)) {
+          const categorizedUsers = {};
+          categories.forEach((category) => {
+            categorizedUsers[category] = response.data.users.filter(
+              (user) => user.category === category && (user.status === 'active' || user.status === 'unblock')
+            );
+          });
+          setUsersByCategory(categorizedUsers);
+        } else {
+          console.error('Invalid API response format:', response.data);
+        }
+      })
+      .catch((error) => console.error('Error fetching categories:', error));
+  }, []);
 
 
   const renderCarousel = (title, users) => {

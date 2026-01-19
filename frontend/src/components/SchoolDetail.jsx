@@ -75,48 +75,39 @@ const SchoolDetail = () => {
   };
 
   return (
-    <div className="mt-0">
-      {/* Mobile Back Button (fixed at top) */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="lg:hidden fixed top-24 left-2 z-50 flex items-center gap-2 px-3 py-2 bg-[#17A2B8] text-white rounded-full shadow-md hover:shadow-lg transition duration-300"
-        onClick={handleBack}
-      >
-        <FaArrowLeft className="text-sm" />
-      </motion.button>
-
-      <div className="bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-        {/* Desktop Back Button */}
+    <div className="pt-24 sm:pt-28 bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 min-h-screen">
+      {/* Back Button Container - Adjusted for better positioning */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 sm:mb-6">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="hidden lg:flex fixed top-24 left-4 z-50 items-center gap-2 px-4 py-2 bg-[#17A2B8] text-white rounded-full shadow-md hover:shadow-lg transition duration-300"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#17A2B8] text-white rounded-full shadow-lg hover:bg-[#138496] transition-all duration-300 transform hover:scale-105 active:scale-95 z-30"
           onClick={handleBack}
         >
-          <FaArrowLeft />
-          <span>Back to List</span>
+          <FaArrowLeft className="text-sm" />
+          <span className="font-bold text-sm sm:text-base">Back to List</span>
         </motion.button>
+      </div>
 
+      <div className="pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <motion.div
             variants={cardVariants}
             initial="hidden"
             animate={isLoaded ? "visible" : "hidden"}
-            className="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-100"
+            className="bg-white shadow-2xl rounded-[2rem] overflow-hidden border border-gray-100"
           >
             {/* Hero Image Section */}
             <div className="relative">
-              <div className="relative w-full h-48 sm:h-72 md:h-96 overflow-hidden">
+              <div className="relative w-full h-56 sm:h-80 md:h-[28rem] overflow-hidden">
                 <motion.img
                   variants={{
-                    hidden: { scale: 1.2, opacity: 0 },
+                    hidden: { scale: 1.1, opacity: 0 },
                     visible: {
                       scale: 1,
                       opacity: 1,
-                      transition: { duration: 0.7, ease: "easeOut" },
+                      transition: { duration: 0.8, ease: "easeOut" },
                     },
                   }}
                   initial="hidden"
@@ -127,24 +118,28 @@ const SchoolDetail = () => {
                   loading="lazy"
                   decoding="async"
                 />
+                {/* Gradient Overlay for better contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
               </div>
 
+              {/* Refined Title Card - Less extreme overlap, better padding */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
-                className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 bg-white px-4 py-3 sm:px-6 sm:py-4 rounded-xl shadow-lg border w-5/6 max-w-md text-center"
+                className="relative mx-auto -mt-16 sm:-mt-20 bg-white px-6 py-5 sm:px-10 sm:py-8 rounded-2xl shadow-xl border border-gray-50 w-[92%] sm:w-5/6 text-center z-20"
               >
-                <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-teal-700">
+                <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#17A2B8] tracking-tight">
                   {user.name}
                 </h2>
-                <p className="text-gray-600 text-xs sm:text-base">
-                  {user.ctitle}
+                <div className="w-16 h-1 bg-[#E76F51] mx-auto my-3 rounded-full"></div>
+                <p className="text-gray-500 text-sm sm:text-lg italic leading-relaxed">
+                  {user.description || "Discover premium services and facilities dedicated to your growth and well-being."}
                 </p>
               </motion.div>
             </div>
 
-            <div className="p-4 pt-16 sm:p-6 sm:pt-20 md:p-8 md:pt-24">
+            <div className="p-6 pt-10 sm:p-10 sm:pt-14 md:p-12 md:pt-16">
               {/* Contact Information Section - Stacked on mobile */}
               <motion.div
                 variants={{
@@ -179,46 +174,6 @@ const SchoolDetail = () => {
                 </div>
               </motion.div>
 
-              {/* Location and Call Now Button Section */}
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { delay: 0.6, duration: 0.5 },
-                  },
-                }}
-                initial="hidden"
-                animate={isLoaded ? "visible" : "hidden"}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-gray-50 mb-6 sm:mb-8"
-              >
-                <div className="flex items-start gap-3 w-full sm:w-auto">
-                  <div className="bg-teal-400 p-2 sm:p-3 rounded-full shadow-md">
-                    <FaMapMarkerAlt className="text-white text-lg sm:text-xl" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 text-base sm:text-lg">
-                      Location
-                    </h3>
-                    <p className="text-gray-700 text-sm sm:text-base">
-                      {user.address || "Not provided"}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  className="w-full sm:w-auto py-2 px-4 bg-teal-500 text-white font-medium rounded-lg shadow-md hover:bg-teal-600 transition duration-300 transform hover:-translate-y-1 hover:shadow-lg text-sm sm:text-base"
-                  onClick={() =>
-                    user.phone && window.open(`tel:${user.phone}`, "_self")
-                  }
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    <FaPhoneAlt className="text-xs sm:text-sm" />
-                    {user.phone ? `Call Now` : "No Contact"}
-                  </span>
-                </button>
-              </motion.div>
 
               {/* About Section */}
               <motion.div
@@ -280,7 +235,7 @@ const SchoolDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-6 sm:mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
+                className="mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
               >
                 <div className="p-2 sm:p-4 md:p-6">
                   <h1 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
@@ -316,6 +271,48 @@ const SchoolDetail = () => {
                     )}
                   </div>
                 </div>
+              </motion.div>
+
+              {/* Location Section */}
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { delay: 0.6, duration: 0.5 } },
+                }}
+                initial="hidden"
+                animate={isLoaded ? "visible" : "hidden"}
+                className="mb-8"
+              >
+                <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors duration-300">
+                  <div className="bg-teal-400 p-3 rounded-full shadow-md">
+                    <FaMapMarkerAlt className="text-white text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-lg">Location</h3>
+                    <p className="text-gray-700">{user.address || "Not provided"}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Call Button */}
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { delay: 0.7, duration: 0.5 } },
+                }}
+                initial="hidden"
+                animate={isLoaded ? "visible" : "hidden"}
+                className="mt-8"
+              >
+                <button
+                  className="w-full py-4 bg-teal-500 text-white font-medium rounded-xl shadow-lg hover:bg-teal-600 transition duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                  onClick={() => user.phone && window.open(`tel:${user.phone}`, "_self")}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <FaPhoneAlt />
+                    {user.phone ? `Call Now` : "No Contact Available"}
+                  </span>
+                </button>
               </motion.div>
             </div>
           </motion.div>

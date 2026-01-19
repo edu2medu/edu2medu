@@ -198,7 +198,7 @@ exports.getEducationUsers = async (req, res) => {
     // ✅ Update image URLs for each user
     const updatedUsers = educationUsers.map((user) => ({
       ...user._doc,
-      image: user.image 
+      image: user.image
         ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
         : "/default-image.png",
     }));
@@ -214,7 +214,7 @@ exports.getHealthcareUsers = async (req, res) => {
   try {
     // ✅ Optimized query: Only select needed fields and filter active users
     const users = await User.find(
-      { userType: "healthcare", status: "active" },
+      { userType: "healthcare", status: { $in: ["active", "unblock"] } },
       "name email phone category address description image contactInfo amenity establishment additionalInfo teachers status" // Select only needed fields
     )
       .lean() // Use lean() for faster queries
@@ -226,7 +226,7 @@ exports.getHealthcareUsers = async (req, res) => {
     // ✅ Optimized mapping - check if image is already a Cloudinary URL
     const updatedUsers = users.map((item) => ({
       ...item,
-      image: item.image 
+      image: item.image
         ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
         : `${baseUrl}/default-image.png`,
     }));
@@ -259,7 +259,7 @@ exports.getAllUsers = async (req, res) => {
   try {
     // ✅ Optimized query: Only select needed fields and filter active users
     const users = await User.find(
-      { userType: "education", status: "active" },
+      { userType: "education", status: { $in: ["active", "unblock"] } },
       "name email phone category address description image contactInfo amenity establishment additionalInfo teachers status" // Select only needed fields
     )
       .lean() // Use lean() for faster queries (returns plain JS objects)
@@ -271,7 +271,7 @@ exports.getAllUsers = async (req, res) => {
     // ✅ Optimized mapping - check if image is already a Cloudinary URL
     const updatedUsers = users.map((item) => ({
       ...item,
-      image: item.image 
+      image: item.image
         ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
         : `${baseUrl}/default-image.png`,
     }));
@@ -666,13 +666,16 @@ exports.resetPassword = async (req, res) => {
 // Search function for education
 
 exports.searchEducation = async (req, res) => {
-  const { query } = req.query;
+  const { query = "" } = req.query;
   const baseUrl = req.protocol + '://' + req.get('host'); // Construct base URL from request
+
+  console.log(`Search Education hit with query: "${query}"`);
 
   try {
     // Search for education-related users
     const results = await User.find({
       userType: "education",
+      status: { $in: ["active", "unblock"] },
       $or: [
         { name: { $regex: query, $options: "i" } },
         { category: { $regex: query, $options: "i" } },
@@ -681,13 +684,15 @@ exports.searchEducation = async (req, res) => {
     });
 
     if (results.length === 0) {
-      return res.status(404).json({ message: "No education results found" });
+      // Return empty array instead of 404 to allow frontend to handle no results gracefully
+      return res.status(200).json([]);
+      // No 404 response; empty results already handled
     }
 
     // Add full image URL to each user - check if already Cloudinary URL
     const usersWithImageUrls = results.map(user => ({
       ...user._doc,
-      image: user.image 
+      image: user.image
         ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
         : `${baseUrl}/default-image.png`,
     }));
@@ -699,13 +704,16 @@ exports.searchEducation = async (req, res) => {
 };
 
 exports.searchHealthcare = async (req, res) => {
-  const { query } = req.query;
+  const { query = "" } = req.query;
   const baseUrl = req.protocol + '://' + req.get('host'); // Construct base URL from request
+
+  console.log(`Search Healthcare hit with query: "${query}"`);
 
   try {
     // Search for healthcare-related users
     const results = await User.find({
       userType: "healthcare",
+      status: { $in: ["active", "unblock"] },
       $or: [
         { name: { $regex: query, $options: "i" } },
         { category: { $regex: query, $options: "i" } },
@@ -714,13 +722,14 @@ exports.searchHealthcare = async (req, res) => {
     });
 
     if (results.length === 0) {
-      return res.status(404).json({ message: "No healthcare results found" });
+      // Return empty array instead of 404 to allow frontend to handle no results gracefully
+      return res.status(200).json([]);
     }
 
     // Add full image URL to each user - check if already Cloudinary URL
     const usersWithImageUrls = results.map(user => ({
       ...user._doc,
-      image: user.image 
+      image: user.image
         ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
         : `${baseUrl}/default-image.png`,
     }));

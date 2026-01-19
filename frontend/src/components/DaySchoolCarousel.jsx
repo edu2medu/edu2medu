@@ -28,7 +28,7 @@ function DaySchoolCarousel() {
     const fetchUsers = async () => {
       const cacheKey = 'all-users-education';
       const cachedData = getCachedData(cacheKey);
-      
+
       try {
         let response;
         if (cachedData) {
@@ -40,7 +40,7 @@ function DaySchoolCarousel() {
             const categorizedUsers = {};
             categories.forEach((category) => {
               categorizedUsers[category] = response.data.users.filter(
-                (user) => user.category === category && user.status === 'active'
+                (user) => user.category === category && (user.status === 'active' || user.status === 'unblock')
               );
             });
             setUsersByCategory(categorizedUsers);
@@ -48,19 +48,19 @@ function DaySchoolCarousel() {
         } else {
           // Fetch fresh data with timeout (max 3 seconds)
           const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getAllUsers`);
-          const timeoutPromise = new Promise((_, reject) => 
+          const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Request timeout')), 3000)
           );
-          
+
           response = await Promise.race([fetchPromise, timeoutPromise]);
           setCachedData(cacheKey, response.data);
-          
+
           // Process and display immediately
           if (response.data.success && Array.isArray(response.data.users)) {
             const categorizedUsers = {};
             categories.forEach((category) => {
               categorizedUsers[category] = response.data.users.filter(
-                (user) => user.category === category && user.status === 'active'
+                (user) => user.category === category && (user.status === 'active' || user.status === 'unblock')
               );
             });
             setUsersByCategory(categorizedUsers);
@@ -73,7 +73,7 @@ function DaySchoolCarousel() {
         setLoading(false);
       }
     };
-    
+
     fetchUsers();
   }, []);
 
@@ -155,13 +155,13 @@ function DaySchoolCarousel() {
               >
                 <div className="relative h-full">
                   <img
-  src={user.image}
-  alt={user.name}
-  className="w-full h-full object-cover"
-  // loading="lazy"
-  // decoding="async"  
-   onError={(e) => (e.target.src = "/default-image.png")}/* Prevents blocking the main thread */
-/>
+                    src={user.image}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                    // loading="lazy"
+                    // decoding="async"  
+                    onError={(e) => (e.target.src = "/default-image.png")}/* Prevents blocking the main thread */
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                   <div className="absolute bottom-0 left-0 w-full p-4">
                     <h2 className="text-lg md:text-xl font-bold text-white">
@@ -185,11 +185,11 @@ function DaySchoolCarousel() {
   const renderSectionsProgressively = () => {
     const categoryKeys = Object.keys(usersByCategory);
     const hasData = categoryKeys.length > 0;
-    
+
     return categories.map((category, index) => {
       const users = usersByCategory[category] || [];
       const hasCategoryData = users.length > 0;
-      
+
       // Show first 3 sections immediately if they have data, or show skeleton
       if (loading && !hasCategoryData && index < 3) {
         return (
@@ -198,7 +198,7 @@ function DaySchoolCarousel() {
           </div>
         );
       }
-      
+
       // Render actual carousel if data is available
       return (
         <div key={category}>
