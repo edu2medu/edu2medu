@@ -157,10 +157,8 @@ const Home = () => {
           <button
             key={category}
             className={`px-6 py-2 rounded-md text-lg font-bold transition-all ${selectedCategory === category
-                ? category === "Education"
-                  ? "bg-[#E76F51] text-white"
-                  : "bg-[#17A2B8] text-white"
-                : "bg-gray-200 text-black hover:bg-opacity-80"
+              ? "bg-[#17A2B8] text-white"
+              : "bg-gray-200 text-black hover:bg-opacity-80"
               }`}
             onClick={() => handleCategoryChange(category)}
           >
@@ -177,10 +175,7 @@ const Home = () => {
         transition={{ duration: 1, type: "spring", stiffness: 100 }}
       >
         <span
-          className={`bg-gradient-to-r from-white ${selectedCategory === "Education"
-              ? "to-[#E76F51]"
-              : "to-[#17A2B8]"
-            } bg-clip-text text-transparent`}
+          className="bg-gradient-to-r from-white to-[#17A2B8] bg-clip-text text-transparent"
         >
           {selectedCategory === "Education"
             ? "Find Your Dream School!"
@@ -192,10 +187,7 @@ const Home = () => {
       <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mt-6 flex justify-center items-center">
         <div className="flex items-center w-full max-w-md relative">
           <SearchIcon
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${selectedCategory === "Education"
-                ? "text-[#E76F51]"
-                : "text-[#17A2B8]"
-              }`}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#17A2B8]"
           />
           <input
             type="text"
@@ -211,8 +203,7 @@ const Home = () => {
             onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           />
           <button
-            className={`absolute right-1 top-1/2 transform -translate-y-1/2 ${selectedCategory === "Education" ? "bg-[#E76F51]" : "bg-[#17A2B8]"
-              } text-white p-2 rounded-md hover:bg-opacity-80 transition duration-300 ease-in-out transform hover:scale-110`}
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-[#17A2B8] text-white p-2 rounded-md hover:bg-opacity-80 transition duration-300 ease-in-out transform hover:scale-110"
             onClick={handleSearch}
           >
             <SearchIcon className="w-5 h-5" />
@@ -227,10 +218,7 @@ const Home = () => {
           [...Array(5)].map((_, index) => (
             <div
               key={index}
-              className={`h-6 w-20 sm:w-24 bg-gray-300 rounded animate-pulse mx-auto ${selectedCategory === "Education"
-                  ? "bg-[#E76F51]/30"
-                  : "bg-[#17A2B8]/30"
-                }`}
+              className="h-6 w-20 sm:w-24 bg-[#17A2B8]/30 rounded animate-pulse mx-auto"
             ></div>
           ))
         ) : filteredCategories.length > 0 ? (
@@ -239,10 +227,7 @@ const Home = () => {
             return (
               <motion.span
                 key={category._id || categoryName}
-                className={`font-bold text-center sm:text-left cursor-pointer text-xs sm:text-sm md:text-base transition duration-300 px-2 py-1 rounded-md hover:bg-white/10 ${selectedCategory === "Education"
-                    ? "text-[#E76F51] hover:text-[#d34c2a]"
-                    : "text-[#17A2B8] hover:text-[#117585]"
-                  }`}
+                className="font-bold text-center sm:text-left cursor-pointer text-xs sm:text-sm md:text-base transition duration-300 px-2 py-1 rounded-md hover:bg-white/10 text-[#17A2B8] hover:text-[#117585]"
                 onClick={() => handleCategoryClick(category)}
                 title={category.description || categoryName}
                 whileHover={{ scale: 1.1 }}
@@ -254,10 +239,7 @@ const Home = () => {
           })
         ) : (
           // Fallback if no categories found
-          <span className={`text-sm col-span-full ${selectedCategory === "Education"
-              ? "text-[#E76F51]"
-              : "text-[#17A2B8]"
-            }`}>
+          <span className="text-sm col-span-full text-[#17A2B8]">
             No categories available
           </span>
         )}

@@ -21,7 +21,7 @@ const Category = () => {
     const fetchCategories = async () => {
       const cacheKey = 'all-categories-education';
       const cachedData = getCachedData(cacheKey);
-      
+
       try {
         let response;
         if (cachedData) {
@@ -32,7 +32,7 @@ const Category = () => {
           response = await deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getallcategories`);
           setCachedData(cacheKey, response.data);
         }
-        
+
         const filteredCategories = response.data.filter(category => category.userType === "education");
         setCategories(filteredCategories);
       } catch (error) {
@@ -87,10 +87,10 @@ const Category = () => {
 
   // Skeleton Loading Component
   const renderSkeleton = () => (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 p-4 sm:p-6 md:p-8 lg:p-10">
-      {[...Array(5)].map((_, index) => (
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 sm:p-6 md:p-8 lg:p-10">
+      {[...Array(6)].map((_, index) => (
         <div key={index} className="bg-white shadow-md rounded-md p-4 animate-pulse">
-          <div className="w-full h-32 bg-gray-300 rounded-t-md"></div>
+          <div className="w-full h-50 bg-gray-300 rounded-t-md"></div>
           <div className="h-6 bg-gray-300 rounded mt-3 w-3/4"></div>
           <div className="h-4 bg-gray-300 rounded mt-2 w-1/2"></div>
         </div>
@@ -99,7 +99,7 @@ const Category = () => {
   );
 
   return (
-    <div className="bg-amber-100 lg:min-h-screen sm:min-h-screen lg:py-10 sm:py-10 px-8">
+    <div className="bg-[#98cdc6] lg:min-h-screen sm:min-h-screen lg:py-10 sm:py-10 px-8">
       <div className="text-center mb-8 sm:mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Browse by Category</h1>
         <p className="text-gray-600 mt-3 text-sm md:text-base">Find the best fit for your child's education</p>
@@ -109,11 +109,11 @@ const Category = () => {
       {loading ? (
         renderSkeleton()
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 p-4 sm:p-6 md:p-8 lg:p-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 sm:p-6 md:p-8 lg:p-10">
           {categories.map((category, index) => (
             <motion.div
               key={index}
-              className="bg-white shadow-md rounded-md p-4 hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer"
+              className="bg-white shadow-md rounded-md p-4 hover:shadow-lg transition-transform transform hover:scale-95 cursor-pointer"
               onClick={() => navigate(`/category/${category.categoryType.replace(/\s+/g, " ")}`)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -121,7 +121,7 @@ const Category = () => {
               <img
                 src={category.image ? `${import.meta.env.VITE_BASEURI}/${category.image}` : "/default-image.jpg"}
                 alt={category.name}
-                className="w-full h-32 object-cover rounded-t-md"
+                className="w-full h-50 object-cover rounded-t-md"
                 loading="lazy" // Lazy loading for images
               />
               <h2 className="text-lg font-bold text-gray-800 mt-3">{category.name}</h2>

@@ -79,7 +79,7 @@ function MedicalCl() {
   const renderSkeleton = () => (
     <div className="py-8 md:py-12 relative z-10">
       <header className="mb-6 px-6 md:px-16">
-        <h1 className="text-3xl font-extrabold text-gray-900 border-l-4 border-blue-500 pl-4 animate-pulse">
+        <h1 className="text-3xl font-extrabold text-gray-900 border-l-4 border-[#17A2B8] pl-4 animate-pulse">
           Loading...
         </h1>
       </header>
@@ -113,7 +113,7 @@ function MedicalCl() {
   const renderCarousel = (title, users) => (
     <div key={title} className="py-8 md:py-12 relative z-10">
       <header className="mb-6 px-6 md:px-16">
-        <h1 className="text-3xl font-extrabold text-gray-900 border-l-4 border-blue-500 pl-4">{title}</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 border-l-4 border-[#17A2B8] pl-4">{title}</h1>
       </header>
       <main className="px-6 md:px-16">
         {users.length === 0 ? (
