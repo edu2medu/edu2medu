@@ -33,7 +33,8 @@ const Category = () => {
           setCachedData(cacheKey, response.data);
         }
 
-        const filteredCategories = response.data.filter(category => category.userType === "education");
+        const categoryData = Array.isArray(response.data) ? response.data : [];
+        const filteredCategories = categoryData.filter(category => category.userType === "education");
         setCategories(filteredCategories);
       } catch (error) {
         console.error("Error fetching categories", error);

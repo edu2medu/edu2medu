@@ -20,7 +20,8 @@ const HCategory = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASEURI}/user/getallcategories`);
-        const filteredCategories = response.data.filter(category => category.userType === "healthcare");
+        const categoryData = Array.isArray(response.data) ? response.data : [];
+        const filteredCategories = categoryData.filter(category => category.userType === "healthcare");
         setCategories(filteredCategories);
       } catch (error) {
         console.error("Error fetching categories", error);

@@ -62,6 +62,7 @@ const Home = () => {
 
   // Filter categories based on selected category type
   const filteredCategories = useMemo(() => {
+    if (!Array.isArray(allCategories)) return [];
     const userType = selectedCategory === "Education" ? "education" : "healthcare";
     return allCategories.filter(category => category.userType === userType);
   }, [allCategories, selectedCategory]);
@@ -92,7 +93,8 @@ const Home = () => {
 
       if (response.status === 200) {
         // Filter results to only show active or unblocked users
-        const activeResults = response.data.filter(user => user.status === 'active' || user.status === 'unblock');
+        const results = Array.isArray(response.data) ? response.data : [];
+        const activeResults = results.filter(user => user.status === 'active' || user.status === 'unblock');
 
         navigate("/search-results", {
           state: {
