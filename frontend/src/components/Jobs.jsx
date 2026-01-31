@@ -9,20 +9,20 @@ const Jobs = () => {
     const fetchJobs = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASEURI}/user/getalljobs`);
-        console.log("Response data:", response.data); // Log the response data
-        setJobs(response.data);
+        const jobsData = Array.isArray(response.data) ? response.data : [];
+        setJobs(jobsData);
       } catch (error) {
         console.error("Error fetching jobs:", error);
       }
     };
-  
+
     fetchJobs();
   }, []);
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 py-8 sm:py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-16">
-        
+
         {/* Hero Section */}
         <div className="flex flex-col lg:flex-row items-center justify-between mb-16 gap-8">
           <div className="w-full lg:w-1/2 space-y-6">
@@ -46,11 +46,11 @@ const Jobs = () => {
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight break-words">
                 Connect with the <span className="bg-gradient-to-r from-[#17A2B8] to-[#1E2939] bg-clip-text text-transparent">Right Talent!</span>
               </h1>
-              
+
               <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
                 At <strong className="text-[#17A2B8]">Edu2Medu</strong>, we believe in building a <strong className="text-[#1E2939]">strong bridge</strong> between opportunity and talent in the education and healthcare sectors.
               </p>
-              
+
               <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
                 If you're an institution, organization, or professional looking to hire, <strong className="text-[#17A2B8]">we've made it simple for you!</strong>
               </p>
@@ -112,18 +112,18 @@ const Jobs = () => {
           </div>
 
           {/* Image Section */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8, rotate: -10 }} 
-            animate={{ opacity: 1, scale: 1, rotate: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ duration: 1, type: "spring", stiffness: 100 }}
             className="lg:w-1/2 flex justify-center relative"
           >
             <div className="relative">
               {/* Decorative circles */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#17A2B8]/20 to-[#1E2939]/20 rounded-full blur-3xl animate-pulse"></div>
-            <motion.img
-              src="ab.jpg"
-              alt="Educational items illustration"
+              <motion.img
+                src="ab.jpg"
+                alt="Educational items illustration"
                 className="relative object-cover rounded-3xl shadow-2xl w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] lg:w-[400px] lg:h-[400px] border-4 border-white/50 ring-4 ring-[#17A2B8]/20 transform transition-all duration-500 ease-in-out"
                 whileHover={{ scale: 1.05, rotate: 2 }}
               />
@@ -159,34 +159,34 @@ const Jobs = () => {
             </h2>
             <p className="text-lg text-gray-600">Discover what makes us the perfect platform for your hiring needs</p>
           </motion.div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { 
-                title: "Collaborative Environment", 
+              {
+                title: "Collaborative Environment",
                 desc: "We foster a collaborative environment to deliver excellent education and healthcare services.",
                 gradient: "from-blue-500 to-cyan-600",
                 icon: "🤝"
               },
-              { 
-                title: "Growth Opportunities", 
+              {
+                title: "Growth Opportunities",
                 desc: "Develop your skills and advance your career in education and healthcare through mentorship and training.",
                 gradient: "from-purple-500 to-pink-600",
                 icon: "📈"
               },
-              { 
-                title: "Exciting Projects", 
+              {
+                title: "Exciting Projects",
                 desc: "Work on impactful projects that make a difference in the education and healthcare sectors.",
                 gradient: "from-orange-500 to-red-600",
                 icon: "🚀"
               },
-              { 
-                title: "Flexible Work Culture", 
+              {
+                title: "Flexible Work Culture",
                 desc: "Enjoy a healthy work-life balance with our flexible work policies.",
                 gradient: "from-green-500 to-emerald-600",
                 icon: "⚖️"
               }
-          ].map((item, index) => (
+            ].map((item, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30, scale: 0.9 }}
@@ -197,12 +197,12 @@ const Jobs = () => {
               >
                 {/* Gradient overlay on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                
+
                 {/* Icon */}
                 <div className={`relative mb-4 inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${item.gradient} rounded-2xl shadow-lg transform group-hover:rotate-6 transition-transform duration-300`}>
                   <span className="text-3xl">{item.icon}</span>
-            </div>
-                
+                </div>
+
                 <h3 className="relative text-xl md:text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#17A2B8] transition-colors">
                   {item.title}
                 </h3>
@@ -230,7 +230,7 @@ const Jobs = () => {
 
           {/* Display Jobs Dynamically */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.length > 0 ? (
+            {jobs.length > 0 ? (
               jobs.map((job, index) => (
                 <motion.div
                   key={job._id}
@@ -242,16 +242,16 @@ const Jobs = () => {
                 >
                   {/* Gradient accent */}
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#17A2B8] to-[#1E2939]"></div>
-                  
+
                   {/* Badge */}
                   <div className="inline-block mb-4 px-3 py-1 bg-gradient-to-r from-[#17A2B8]/10 to-[#1E2939]/10 rounded-full">
                     <span className="text-sm font-semibold text-[#17A2B8]">{job.jobType}</span>
                   </div>
-                  
+
                   <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#17A2B8] transition-colors">
                     {job.jobTitle}
                   </h3>
-                  
+
                   <div className="space-y-2 mb-4">
                     <p className="text-gray-700 flex items-center gap-2">
                       <span className="font-semibold text-gray-900">Company:</span>
@@ -266,21 +266,21 @@ const Jobs = () => {
                       <span className="text-[#17A2B8] font-semibold">{job.salary}</span>
                     </p>
                   </div>
-                  
+
                   <p className="text-gray-600 mb-4 line-clamp-3">{job.jobDescription}</p>
-                  
+
                   {job.applicationDeadline && (
                     <p className="text-sm text-gray-500 mb-4">
                       <strong>Deadline:</strong> {job.applicationDeadline}
                     </p>
                   )}
-                  
+
                   <button className="w-full bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                     Apply Now
-      </button>
+                  </button>
                 </motion.div>
-  ))
-) : (
+              ))
+            ) : (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -292,7 +292,7 @@ const Jobs = () => {
                   <p className="text-gray-500 mt-2">Check back soon for new opportunities!</p>
                 </div>
               </motion.div>
-)}
+            )}
           </div>
         </div>
       </div>
