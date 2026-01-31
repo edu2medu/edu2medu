@@ -29,7 +29,7 @@ mongoose
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:5173',
   'https://edu2medu-frontend.vercel.app',
-  'https://edu2medu-backend.onrender.com',
+  'https://edu2medu-production.up.railway.app',
   'https://www.edu2medu.com',
   'https://edu2medu.com'
 ];
