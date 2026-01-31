@@ -108,7 +108,8 @@ export default function UserDashboard() {
     setLoadingJobs(true);
     try {
       const response = await axios.get(`${import.meta.env.VITE_BASEURI}/user/getalljobs`);
-      setJobs(response.data || []);
+      const jobsData = Array.isArray(response.data) ? response.data : [];
+      setJobs(jobsData);
     } catch (error) {
       console.error("Error fetching jobs:", error);
       setMessage("Failed to load jobs");
@@ -1120,7 +1121,7 @@ export default function UserDashboard() {
               <div className="text-center py-12">
                 <p className="text-gray-500">Loading jobs...</p>
               </div>
-            ) : jobs.length === 0 ? (
+            ) : !Array.isArray(jobs) || jobs.length === 0 ? (
               <div className="text-center py-12 bg-gray-50 rounded-xl">
                 <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600 text-lg">No job openings posted yet.</p>

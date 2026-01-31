@@ -4,10 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const SearchResult = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { searchResults, selectedCategory } = location.state || {
-    searchResults: [],
-    selectedCategory: "",
-  };
+  const { searchResults = [], selectedCategory = "" } = location.state || {};
 
   const handleDetailClick = (user) => {
     const route = selectedCategory === "Education" ? "/schools" : "/medu-details";

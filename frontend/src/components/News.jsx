@@ -12,7 +12,7 @@ const News = () => {
     const fetchNews = async () => {
       const cacheKey = 'all-news';
       const cachedData = getCachedData(cacheKey);
-      
+
       try {
         let response;
         if (cachedData) {
@@ -23,8 +23,9 @@ const News = () => {
           response = await deduplicatedGet(`${import.meta.env.VITE_BASEURI}/admin/getallNews`);
           setCachedData(cacheKey, response.data);
         }
-        
-        setNewsList(response.data.news);
+
+        const newsData = Array.isArray(response.data?.news) ? response.data.news : [];
+        setNewsList(newsData);
       } catch (err) {
         setError("Failed to load news. Please try again later.");
       } finally {

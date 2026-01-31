@@ -149,7 +149,7 @@ const AdminDashboard = () => {
       console.error("Error details:", error.response?.data || error.message);
       alert(
         "Error adding news. " +
-          (error.response?.data?.message || "Please try again.")
+        (error.response?.data?.message || "Please try again.")
       );
     }
   };
@@ -288,7 +288,8 @@ const AdminDashboard = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASEURI}/admin/getEducationUsers`
       );
-      setUsers(response.data.users);
+      const userData = Array.isArray(response.data?.users) ? response.data.users : [];
+      setUsers(userData);
     } catch (error) {
       console.error("Error fetching Education users:", error);
     }
@@ -299,7 +300,8 @@ const AdminDashboard = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASEURI}/admin/getHealthcareUsers`
       );
-      setUsers(response.data.users);
+      const userData = Array.isArray(response.data?.users) ? response.data.users : [];
+      setUsers(userData);
     } catch (error) {
       console.error("Error fetching Healthcare users:", error);
     }
@@ -314,8 +316,8 @@ const AdminDashboard = () => {
             ? `${import.meta.env.VITE_BASEURI}/admin/unblockEducationUser`
             : `${import.meta.env.VITE_BASEURI}/admin/blockEducationUser`
           : isBlocked
-          ? `${import.meta.env.VITE_BASEURI}/admin/unblockHealthcareUser`
-          : `${import.meta.env.VITE_BASEURI}/admin/blockHealthcareUser`;
+            ? `${import.meta.env.VITE_BASEURI}/admin/unblockHealthcareUser`
+            : `${import.meta.env.VITE_BASEURI}/admin/blockHealthcareUser`;
 
       await axios.post(endpoint, { userId });
       selectedSection === "Education" ? fetchEduUsers() : fetchMedUsers();
@@ -364,7 +366,7 @@ const AdminDashboard = () => {
       hour12: true,
     });
   };
-  
+
 
   useEffect(() => {
     if (selectedSection === "Education") {
@@ -400,7 +402,7 @@ const AdminDashboard = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white px-6 py-3 rounded-xl shadow-lg">
-            <span className="font-semibold">Total Schools: {users.length}</span>
+            <span className="font-semibold">Total Schools: {Array.isArray(users) ? users.length : 0}</span>
           </div>
         </div>
         {selectedSchools.length > 0 && (
@@ -423,7 +425,7 @@ const AdminDashboard = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {users.map((school, index) => (
+            {Array.isArray(users) && users.map((school, index) => (
               <tr key={school._id} className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                 <td className="py-4 px-6">
                   <input
@@ -441,30 +443,27 @@ const AdminDashboard = () => {
                   </span>
                 </td>
                 <td className="py-4 px-6">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                    school.paymentDetails.paymentStatus === "paid"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}>
-                    {school.paymentDetails.paymentStatus === "paid" ? "✓ Paid" : "✗ Unpaid"}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${school.paymentDetails.paymentStatus === "paid"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                    }`}>
+                    {school.paymentDetails?.paymentStatus === "paid" ? "✓ Paid" : "✗ Unpaid"}
                   </span>
                 </td>
                 <td className="py-4 px-6">
-                  <span className={`font-semibold ${
-                    calculateRemainingDays(school.paymentDetails.paymentDate) <= 30
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }`}>
-                    {calculateRemainingDays(school.paymentDetails.paymentDate)} days
+                  <span className={`font-semibold ${calculateRemainingDays(school.paymentDetails.paymentDate) <= 30
+                    ? "text-red-600"
+                    : "text-green-600"
+                    }`}>
+                    {calculateRemainingDays(school.paymentDetails?.paymentDate)} days
                   </span>
                 </td>
                 <td className="py-4 px-6 text-center">
                   <button
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ${
-                      school.status === "blocked"
-                        ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
-                        : "bg-red-500 hover:bg-red-600 text-white shadow-md"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ${school.status === "blocked"
+                      ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
+                      : "bg-red-500 hover:bg-red-600 text-white shadow-md"
+                      }`}
                     onClick={() => onBlockUser(school._id, school.status)}
                   >
                     {school.status === "blocked" ? "Unblock" : "Block"}
@@ -482,7 +481,7 @@ const AdminDashboard = () => {
     <div className="space-y-4">
       <div className="flex justify-end mb-6">
         <div className="bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white px-6 py-3 rounded-xl shadow-lg">
-          <span className="font-semibold">Total Active Users: {users.length}</span>
+          <span className="font-semibold">Total Active Users: {Array.isArray(users) ? users.length : 0}</span>
         </div>
       </div>
       <div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
@@ -499,7 +498,7 @@ const AdminDashboard = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {users.map((user, index) => (
+            {Array.isArray(users) && users.map((user, index) => (
               <tr key={user._id} className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                 <td className="py-4 px-6">
                   <input
@@ -517,30 +516,27 @@ const AdminDashboard = () => {
                   </span>
                 </td>
                 <td className="py-4 px-6">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                    user.paymentDetails.paymentStatus === "paid"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}>
-                    {user.paymentDetails.paymentStatus === "paid" ? "✓ Paid" : "✗ Unpaid"}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${user.paymentDetails.paymentStatus === "paid"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                    }`}>
+                    {user.paymentDetails?.paymentStatus === "paid" ? "✓ Paid" : "✗ Unpaid"}
                   </span>
                 </td>
                 <td className="py-4 px-6">
-                  <span className={`font-semibold ${
-                    calculateRemainingDays(user.paymentDetails.paymentDate) <= 30
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }`}>
-                    {calculateRemainingDays(user.paymentDetails.paymentDate)} days
+                  <span className={`font-semibold ${calculateRemainingDays(user.paymentDetails.paymentDate) <= 30
+                    ? "text-red-600"
+                    : "text-green-600"
+                    }`}>
+                    {calculateRemainingDays(user.paymentDetails?.paymentDate)} days
                   </span>
                 </td>
                 <td className="py-4 px-6 text-center">
                   <button
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ${
-                      user.status === "blocked"
-                        ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
-                        : "bg-red-500 hover:bg-red-600 text-white shadow-md"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ${user.status === "blocked"
+                      ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
+                      : "bg-red-500 hover:bg-red-600 text-white shadow-md"
+                      }`}
                     onClick={() => onBlockUser(user._id, user.status)}
                   >
                     {user.status === "blocked" ? "Unblock" : "Block"}
@@ -564,7 +560,7 @@ const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100 text-sm font-medium">Total Users</p>
-                    <p className="text-3xl font-bold mt-2">{users.length}</p>
+                    <p className="text-3xl font-bold mt-2">{Array.isArray(users) ? users.length : 0}</p>
                   </div>
                   <User className="w-12 h-12 text-blue-200" />
                 </div>
@@ -574,7 +570,7 @@ const AdminDashboard = () => {
                   <div>
                     <p className="text-green-100 text-sm font-medium">Active Users</p>
                     <p className="text-3xl font-bold mt-2">
-                      {users.filter(u => u.status === 'active').length}
+                      {Array.isArray(users) ? users.filter(u => u.status === 'active').length : 0}
                     </p>
                   </div>
                   <Activity className="w-12 h-12 text-green-200" />
@@ -585,7 +581,7 @@ const AdminDashboard = () => {
                   <div>
                     <p className="text-purple-100 text-sm font-medium">Paid Users</p>
                     <p className="text-3xl font-bold mt-2">
-                      {users.filter(u => u.paymentDetails?.paymentStatus === 'paid').length}
+                      {Array.isArray(users) ? users.filter(u => u.paymentDetails?.paymentStatus === 'paid').length : 0}
                     </p>
                   </div>
                   <FaMoneyBill className="w-12 h-12 text-purple-200" />
@@ -855,50 +851,50 @@ const AdminDashboard = () => {
                   News Image <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#17A2B8] transition-colors bg-white">
-                <div className="space-y-1 text-center">
-                  <svg
-                    className="mx-auto h-12 w-12 text-gray-400"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 48 48"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <div className="flex text-sm text-gray-600">
-                    <label
-                      htmlFor="file-upload"
-                      className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                  <div className="space-y-1 text-center">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      stroke="currentColor"
+                      fill="none"
+                      viewBox="0 0 48 48"
+                      aria-hidden="true"
                     >
-                      <span>Upload a file</span>
-                      <input
-                        id="file-upload"
-                        name="image"
-                        type="file"
-                        className="sr-only"
-                        onChange={handleNewsFileChange}
-                        accept="image/*"
-                        required
+                      <path
+                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
-                    </label>
-                    <p className="pl-1">or drag and drop</p>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    PNG, JPG, GIF ,WEBP up to 5MB
-                  </p>
-                  {fileName && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      Selected file: {fileName}
+                    </svg>
+                    <div className="flex text-sm text-gray-600">
+                      <label
+                        htmlFor="file-upload"
+                        className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                      >
+                        <span>Upload a file</span>
+                        <input
+                          id="file-upload"
+                          name="image"
+                          type="file"
+                          className="sr-only"
+                          onChange={handleNewsFileChange}
+                          accept="image/*"
+                          required
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      PNG, JPG, GIF ,WEBP up to 5MB
                     </p>
-                  )}
+                    {fileName && (
+                      <p className="mt-2 text-sm text-gray-600">
+                        Selected file: {fileName}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
               <button
                 type="submit"
@@ -912,175 +908,171 @@ const AdminDashboard = () => {
       case "User Details":
         return (
           <div className="p-4 sm:p-6 md:p-8 bg-gray-100 rounded-xl shadow-xl border border-gray-300 w-full overflow-hidden">
-          <h3 className="text-2xl sm:text-3xl font-extrabold mb-4 sm:mb-6 text-gray-900 text-center">
-            {selectedSection} User List
-          </h3>
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 space-y-4 sm:space-y-0">
-            <span className="bg-gradient-to-r from-[#17A2B8] to-[#5db4c1] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-base sm:text-lg font-semibold shadow-lg text-center">
-              Total Active Users: {users.length}
-            </span>
-          </div>
-        
-          {users.length > 0 ? (
-            <>
-              {/* Table for Desktop and Tablet */}
-              <div className="hidden sm:block overflow-x-auto rounded-lg shadow-md">
-                <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden text-sm sm:text-md">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-[#17A2B8] to-[#17A2B8] text-white uppercase text-xs sm:text-sm font-bold tracking-wide text-center">
-                      <th className="py-3 px-4 sm:py-4 sm:px-6">Name</th>
-                      <th className="py-3 px-4 sm:py-4 sm:px-6">Email</th>
-                      <th className="py-3 px-4 sm:py-4 sm:px-6">Phone</th>
-                      <th className="py-3 px-4 sm:py-4 sm:px-6">Subscription</th>
-                      <th className="py-3 px-4 sm:py-4 sm:px-6">Remaining Days</th>
-                      <th className="py-3 px-4 sm:py-4 sm:px-6">Type</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-gray-800 font-medium divide-y divide-gray-300">
-                    {users.map((user, index) => (
-                      <tr
-                        key={user._id}
-                        className={`transition duration-300 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 hover:scale-[1.02]`}
-                      >
-                        <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.name}</td>
-                        <td className="py-3 px-4 sm:py-4 sm:px-6 text-center break-all">{user.email}</td>
-                        <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">
-                          <a href={`tel:${user.phone}`} className="flex items-center justify-center space-x-2 text-blue-600 hover:text-blue-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+            <h3 className="text-2xl sm:text-3xl font-extrabold mb-4 sm:mb-6 text-gray-900 text-center">
+              {selectedSection} User List
+            </h3>
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 space-y-4 sm:space-y-0">
+              <span className="bg-gradient-to-r from-[#17A2B8] to-[#5db4c1] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-base sm:text-lg font-semibold shadow-lg text-center">
+                Total Active Users: {users.length}
+              </span>
+            </div>
+
+            {users.length > 0 ? (
+              <>
+                {/* Table for Desktop and Tablet */}
+                <div className="hidden sm:block overflow-x-auto rounded-lg shadow-md">
+                  <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden text-sm sm:text-md">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-[#17A2B8] to-[#17A2B8] text-white uppercase text-xs sm:text-sm font-bold tracking-wide text-center">
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Name</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Email</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Phone</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Subscription</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Remaining Days</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Type</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-800 font-medium divide-y divide-gray-300">
+                      {Array.isArray(users) && users.map((user, index) => (
+                        <tr
+                          key={user._id}
+                          className={`transition duration-300 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 hover:scale-[1.02]`}
+                        >
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.name}</td>
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center break-all">{user.email}</td>
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">
+                            <a href={`tel:${user.phone}`} className="flex items-center justify-center space-x-2 text-blue-600 hover:text-blue-800">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M2 3a1 1 0 011-1h3a1 1 0 011 .883l.7 4.2a1 1 0 01-.316.906l-1.6 1.4a13.06 13.06 0 006.316 6.316l1.4-1.6a1 1 0 01.906-.316l4.2.7A1 1 0 0118 15v3a1 1 0 01-1 1h-2c-8.837 0-16-7.163-16-16V4a1 1 0 011-1z" clipRule="evenodd" />
+                              </svg>
+                              <span className="text-xs sm:text-sm">{user.phone}</span>
+                            </a>
+                          </td>
+                          <td className={`py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold rounded-md ${user.paymentDetails.paymentStatus === "paid"
+                            ? "text-green-700 bg-green-200"
+                            : "text-red-700 bg-red-200"
+                            }`}
+                          >
+                            {user.paymentDetails.paymentStatus}
+                          </td>
+                          <td className={`py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold rounded-md ${calculateRemainingDays(user.paymentDetails.paymentDate) <= 30
+                            ? "text-red-700 bg-red-200"
+                            : "text-green-700 bg-green-200"
+                            }`}
+                          >
+                            {calculateRemainingDays(user.paymentDetails.paymentDate)}
+                          </td>
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.userType}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Card Layout for Mobile */}
+                <div className="sm:hidden space-y-4">
+                  {Array.isArray(users) && users.map((user, index) => (
+                    <div key={user._id} className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                      <div className="space-y-2">
+                        <p className="text-gray-900 font-semibold">Name: <span className="font-normal">{user.name}</span></p>
+                        <p className="text-gray-900 font-semibold">Email: <span className="font-normal break-all">{user.email}</span></p>
+                        <p className="text-gray-900 font-semibold">
+                          Phone:{" "}
+                          <a href={`tel:${user.phone}`} className="font-normal text-blue-600 hover:text-blue-800 flex items-center space-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M2 3a1 1 0 011-1h3a1 1 0 011 .883l.7 4.2a1 1 0 01-.316.906l-1.6 1.4a13.06 13.06 0 006.316 6.316l1.4-1.6a1 1 0 01.906-.316l4.2.7A1 1 0 0118 15v3a1 1 0 01-1 1h-2c-8.837 0-16-7.163-16-16V4a1 1 0 011-1z" clipRule="evenodd" />
                             </svg>
-                            <span className="text-xs sm:text-sm">{user.phone}</span>
+                            <span>{user.phone}</span>
                           </a>
-                        </td>
-                        <td className={`py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold rounded-md ${
-                            user.paymentDetails.paymentStatus === "paid"
-                              ? "text-green-700 bg-green-200"
-                              : "text-red-700 bg-red-200"
-                          }`}
-                        >
-                          {user.paymentDetails.paymentStatus}
-                        </td>
-                        <td className={`py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold rounded-md ${
-                            calculateRemainingDays(user.paymentDetails.paymentDate) <= 30
-                              ? "text-red-700 bg-red-200"
-                              : "text-green-700 bg-green-200"
-                          }`}
-                        >
-                          {calculateRemainingDays(user.paymentDetails.paymentDate)}
-                        </td>
-                        <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.userType}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-        
-              {/* Card Layout for Mobile */}
-              <div className="sm:hidden space-y-4">
-                {users.map((user, index) => (
-                  <div key={user._id} className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-                    <div className="space-y-2">
-                      <p className="text-gray-900 font-semibold">Name: <span className="font-normal">{user.name}</span></p>
-                      <p className="text-gray-900 font-semibold">Email: <span className="font-normal break-all">{user.email}</span></p>
-                      <p className="text-gray-900 font-semibold">
-                        Phone:{" "}
-                        <a href={`tel:${user.phone}`} className="font-normal text-blue-600 hover:text-blue-800 flex items-center space-x-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M2 3a1 1 0 011-1h3a1 1 0 011 .883l.7 4.2a1 1 0 01-.316.906l-1.6 1.4a13.06 13.06 0 006.316 6.316l1.4-1.6a1 1 0 01.906-.316l4.2.7A1 1 0 0118 15v3a1 1 0 01-1 1h-2c-8.837 0-16-7.163-16-16V4a1 1 0 011-1z" clipRule="evenodd" />
-                          </svg>
-                          <span>{user.phone}</span>
-                        </a>
-                      </p>
-                      <p className="text-gray-900 font-semibold">
-                        Subscription:{" "}
-                        <span className={`font-semibold rounded-md px-2 py-1 ${
-                            user.paymentDetails.paymentStatus === "paid"
-                              ? "text-green-700 bg-green-200"
-                              : "text-red-700 bg-red-200"
-                          }`}
-                        >
-                          {user.paymentDetails.paymentStatus}
-                        </span>
-                      </p>
-                      <p className="text-gray-900 font-semibold">
-                        Remaining Days:{" "}
-                        <span className={`font-semibold rounded-md px-2 py-1 ${
-                            calculateRemainingDays(user.paymentDetails.paymentDate) <= 30
-                              ? "text-red-700 bg-red-200"
-                              : "text-green-700 bg-green-200"
-                          }`}
-                        >
-                          {calculateRemainingDays(user.paymentDetails.paymentDate)}
-                        </span>
-                      </p>
-                      <p className="text-gray-900 font-semibold">Type: <span className="font-normal">{user.userType}</span></p>
+                        </p>
+                        <p className="text-gray-900 font-semibold">
+                          Subscription:{" "}
+                          <span className={`font-semibold rounded-md px-2 py-1 ${user.paymentDetails.paymentStatus === "paid"
+                            ? "text-green-700 bg-green-200"
+                            : "text-red-700 bg-red-200"
+                            }`}
+                          >
+                            {user.paymentDetails.paymentStatus}
+                          </span>
+                        </p>
+                        <p className="text-gray-900 font-semibold">
+                          Remaining Days:{" "}
+                          <span className={`font-semibold rounded-md px-2 py-1 ${calculateRemainingDays(user.paymentDetails.paymentDate) <= 30
+                            ? "text-red-700 bg-red-200"
+                            : "text-green-700 bg-green-200"
+                            }`}
+                          >
+                            {calculateRemainingDays(user.paymentDetails.paymentDate)}
+                          </span>
+                        </p>
+                        <p className="text-gray-900 font-semibold">Type: <span className="font-normal">{user.userType}</span></p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p className="text-gray-700 text-center mt-4 sm:mt-6 text-base sm:text-lg">No users found for {selectedSection}.</p>
-          )}
-        </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-gray-700 text-center mt-4 sm:mt-6 text-base sm:text-lg">No users found for {selectedSection}.</p>
+            )}
+          </div>
         );
-        case "Payment History":
-  return (
-    <div className="p-4 sm:p-6 md:p-8 bg-gray-100 rounded-xl shadow-xl border border-gray-300 w-full overflow-hidden">
-    <h3 className="text-2xl sm:text-3xl font-extrabold mb-4 sm:mb-6 text-gray-900 text-center">
-      {selectedSection} User List
-    </h3>
-    <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 space-y-4 sm:space-y-0">
-      <span className="bg-gradient-to-r from-[#17A2B8] to-[#5db4c1] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-base sm:text-lg font-semibold shadow-lg text-center">
-        Total Paid Users: {users.filter(user => user.paymentDetails.paymentStatus === "paid").length}
-      </span>
-    </div>
-
-    {users.filter(user => user.paymentDetails.paymentStatus === "paid").length > 0 ? (
-      <>
-        {/* Table for Desktop and Tablet */}
-        <div className="hidden sm:block overflow-x-auto rounded-lg shadow-md">
-          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden text-sm sm:text-md">
-            <thead>
-              <tr className="bg-gradient-to-r from-[#17A2B8] to-[#17A2B8] text-white uppercase text-xs sm:text-sm font-bold tracking-wide text-center">
-                <th className="py-3 px-4 sm:py-4 sm:px-6">Name</th>
-                <th className="py-3 px-4 sm:py-4 sm:px-6">Email</th>
-                <th className="py-3 px-4 sm:py-4 sm:px-6">UTR Number</th>
-                <th className="py-3 px-4 sm:py-4 sm:px-6">Payment Date & Time (IST)</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-800 font-medium divide-y divide-gray-300">
-              {users.filter(user => user.paymentDetails.paymentStatus === "paid").map((user, index) => (
-                <tr key={user._id} className={`transition duration-300 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 hover:scale-[1.02]`}>
-                  <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.name}</td>
-                  <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.email}</td>
-                  <td className="py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold">{user.paymentDetails.utrNumber || "N/A"}</td>
-                  <td className="py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold">{formatIndianDateTime(user.paymentDetails.paymentDate)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Card Layout for Mobile */}
-        <div className="sm:hidden space-y-4">
-          {users.filter(user => user.paymentDetails.paymentStatus === "paid").map(user => (
-            <div key={user._id} className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-              <p className="text-gray-900 font-semibold">Name: <span className="font-normal">{user.name}</span></p>
-              <p className="text-gray-900 font-semibold">Email: <span className="font-normal">{user.email}</span></p>
-              <p className="text-gray-900 font-semibold">UTR Number: <span className="font-normal">{user.paymentDetails.utrNumber || "N/A"}</span></p>
-              <p className="text-gray-900 font-semibold">Payment Date & Time: <span className="font-normal">{formatIndianDateTime(user.paymentDetails.paymentDate)}</span></p>
+      case "Payment History":
+        return (
+          <div className="p-4 sm:p-6 md:p-8 bg-gray-100 rounded-xl shadow-xl border border-gray-300 w-full overflow-hidden">
+            <h3 className="text-2xl sm:text-3xl font-extrabold mb-4 sm:mb-6 text-gray-900 text-center">
+              {selectedSection} User List
+            </h3>
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 space-y-4 sm:space-y-0">
+              <span className="bg-gradient-to-r from-[#17A2B8] to-[#5db4c1] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-base sm:text-lg font-semibold shadow-lg text-center">
+                Total Paid Users: {users.filter(user => user.paymentDetails.paymentStatus === "paid").length}
+              </span>
             </div>
-          ))}
-        </div>
-      </>
-    ) : (
-      <p className="text-gray-700 text-center mt-4 sm:mt-6 text-base sm:text-lg">
-        No paid users found for {selectedSection}.
-      </p>
-    )}
-  </div>
-  );
+
+            {users.filter(user => user.paymentDetails.paymentStatus === "paid").length > 0 ? (
+              <>
+                {/* Table for Desktop and Tablet */}
+                <div className="hidden sm:block overflow-x-auto rounded-lg shadow-md">
+                  <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden text-sm sm:text-md">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-[#17A2B8] to-[#17A2B8] text-white uppercase text-xs sm:text-sm font-bold tracking-wide text-center">
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Name</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Email</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">UTR Number</th>
+                        <th className="py-3 px-4 sm:py-4 sm:px-6">Payment Date & Time (IST)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-800 font-medium divide-y divide-gray-300">
+                      {users.filter(user => user.paymentDetails.paymentStatus === "paid").map((user, index) => (
+                        <tr key={user._id} className={`transition duration-300 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 hover:scale-[1.02]`}>
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.name}</td>
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">{user.email}</td>
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold">{user.paymentDetails.utrNumber || "N/A"}</td>
+                          <td className="py-3 px-4 sm:py-4 sm:px-6 text-center font-semibold">{formatIndianDateTime(user.paymentDetails.paymentDate)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Card Layout for Mobile */}
+                <div className="sm:hidden space-y-4">
+                  {users.filter(user => user.paymentDetails.paymentStatus === "paid").map(user => (
+                    <div key={user._id} className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                      <p className="text-gray-900 font-semibold">Name: <span className="font-normal">{user.name}</span></p>
+                      <p className="text-gray-900 font-semibold">Email: <span className="font-normal">{user.email}</span></p>
+                      <p className="text-gray-900 font-semibold">UTR Number: <span className="font-normal">{user.paymentDetails.utrNumber || "N/A"}</span></p>
+                      <p className="text-gray-900 font-semibold">Payment Date & Time: <span className="font-normal">{formatIndianDateTime(user.paymentDetails.paymentDate)}</span></p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-gray-700 text-center mt-4 sm:mt-6 text-base sm:text-lg">
+                No paid users found for {selectedSection}.
+              </p>
+            )}
+          </div>
+        );
 
       case "User Inquiries":
         return (
@@ -1154,9 +1146,8 @@ const AdminDashboard = () => {
       {selectedSection ? (
         <div className="flex flex-col md:flex-row min-h-screen w-full">
           <aside
-            className={`w-full md:w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white p-6 shadow-2xl fixed md:sticky top-0 h-screen transition-transform ${
-              isMenuOpen ? "translate-x-0" : "-translate-x-full"
-            } md:translate-x-0 z-50 border-r border-gray-700`}
+            className={`w-full md:w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white p-6 shadow-2xl fixed md:sticky top-0 h-screen transition-transform ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+              } md:translate-x-0 z-50 border-r border-gray-700`}
           >
             {/* Sidebar Header */}
             <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-700">
@@ -1178,11 +1169,10 @@ const AdminDashboard = () => {
                 {sidebarOptions[selectedSection].map((item, index) => (
                   <li key={index}>
                     <button
-                      className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 text-left group ${
-                        activeItem === item.name
-                          ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
-                          : "hover:bg-gray-700/50 text-gray-300 hover:text-white"
-                      }`}
+                      className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 text-left group ${activeItem === item.name
+                        ? "bg-gradient-to-r from-[#17A2B8] to-[#1E2939] text-white shadow-lg"
+                        : "hover:bg-gray-700/50 text-gray-300 hover:text-white"
+                        }`}
                       onClick={() => {
                         setActiveItem(item.name);
                         setIsMenuOpen(false);
