@@ -54,7 +54,7 @@ const Medicategory = () => {
   }, [categoryName]);
 
   return (
-    <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">
           <motion.button

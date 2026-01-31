@@ -158,11 +158,12 @@ const Home = () => {
         {["Education", "Healthcare"].map((category) => (
           <button
             key={category}
-            className={`px-6 py-2 rounded-md text-lg font-bold transition-all ${selectedCategory === category
-              ? category === "Education"
-                ? "bg-[#E76F51] text-white"
-                : "bg-[#17A2B8] text-white"
-              : "bg-gray-200 text-black hover:bg-opacity-80"
+            className={`px-6 py-2 rounded-md text-lg font-bold transition-all relative z-20 ${selectedCategory === category
+                ? `ring-2 ring-white ring-offset-2 ring-offset-gray-900 ${category === "Education"
+                  ? "bg-[#E76F51] text-white"
+                  : "bg-[#17A2B8] text-white"
+                }`
+                : "bg-white text-gray-800 hover:bg-gray-100"
               }`}
             onClick={() => handleCategoryChange(category)}
           >
@@ -179,9 +180,7 @@ const Home = () => {
         transition={{ duration: 1, type: "spring", stiffness: 100 }}
       >
         <span
-          className={`bg-gradient-to-r from-white ${selectedCategory === "Education"
-            ? "to-[#E76F51]"
-            : "to-[#17A2B8]"
+          className={`bg-gradient-to-r from-white ${selectedCategory === "Education" ? "to-[#E76F51]" : "to-[#17A2B8]"
             } bg-clip-text text-transparent`}
         >
           {selectedCategory === "Education"
@@ -191,12 +190,10 @@ const Home = () => {
       </motion.h1>
 
       {/* Search Bar */}
-      <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mt-6 flex justify-center items-center">
+      <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mt-6 flex justify-center items-center z-20">
         <div className="flex items-center w-full max-w-md relative">
           <SearchIcon
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${selectedCategory === "Education"
-              ? "text-[#E76F51]"
-              : "text-[#17A2B8]"
+            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${selectedCategory === "Education" ? "text-[#E76F51]" : "text-[#17A2B8]"
               }`}
           />
           <input
@@ -204,8 +201,8 @@ const Home = () => {
             placeholder={
               selectedOption ||
               (selectedCategory === "Education"
-                ? "Search schools, boards, cities..."
-                : "Search hospitals, clinics, doctors...")
+                ? "Search schools, subjects, boards, cities..."
+                : "Search hospitals, specialists, clinics...")
             }
             className="p-3 pl-10 pr-14 rounded-lg w-full text-sm sm:text-base placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-[#5e758e] shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
             value={searchQuery}

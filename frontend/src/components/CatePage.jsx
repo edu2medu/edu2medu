@@ -1,7 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { deduplicatedGet } from "../utils/apiClient";
 import { getCachedData, setCachedData } from "../utils/apiCache";
+import { motion } from "framer-motion";
+import { FaArrowLeft } from "react-icons/fa";
 
 const CatePage = () => {
   const { categoryName } = useParams();
@@ -15,7 +17,7 @@ const CatePage = () => {
       setError(null);
       setLoading(true);
 
-      const cacheKey = `all-users-education`;
+      const cacheKey = 'all-users-education';
       const cachedData = getCachedData(cacheKey);
 
       try {
@@ -23,31 +25,26 @@ const CatePage = () => {
         if (cachedData) {
           response = { data: cachedData };
           setLoading(false);
-          if (response.data && Array.isArray(response.data.users)) {
-            const filteredusers = response.data.users.filter(
-              (user) => user.category === categoryName && (user.status === 'active' || user.status === 'unblock')
-            );
-            setusers(filteredusers);
-          }
         } else {
-          const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getAllUsers`);
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timeout')), 3000)
+          response = await deduplicatedGet(
+            `${import.meta.env.VITE_BASEURI}/user/getAllUsers`
           );
-
-          response = await Promise.race([fetchPromise, timeoutPromise]);
           setCachedData(cacheKey, response.data);
-
-          if (response.data && Array.isArray(response.data.users)) {
-            const filteredusers = response.data.users.filter(
-              (user) => user.category === categoryName && (user.status === 'active' || user.status === 'unblock')
-            );
-            setusers(filteredusers);
-          }
         }
-      } catch (error) {
-        setError("Failed to load data. Please try again later.");
-        setusers([]);
+
+        if (response.data?.users && Array.isArray(response.data.users)) {
+          const activeUsers = response.data.users.filter(
+            (user) =>
+              user.category === categoryName &&
+              (user.status === 'active' || user.status === 'unblock')
+          );
+          setusers(activeUsers);
+        } else {
+          setError("Invalid data format received");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("Failed to load education providers");
       } finally {
         setLoading(false);
       }
@@ -56,25 +53,19 @@ const CatePage = () => {
     fetchUsers();
   }, [categoryName]);
 
-  const filteredUsers = useMemo(() => {
-    return users.filter(
-      (user) => user.category === categoryName && (user.status === 'active' || user.status === 'unblock')
-    );
-  }, [users, categoryName]);
-
   return (
-    <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">
-          <button
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-2 px-6 py-2.5 bg-white text-gray-700 font-semibold rounded-full shadow-sm border border-gray-200 hover:bg-gray-50 transition-all duration-300"
             onClick={() => navigate("/")}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
+            <FaArrowLeft className="text-sm" />
             Back
-          </button>
+          </motion.button>
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
             {categoryName}
           </h2>
@@ -96,19 +87,22 @@ const CatePage = () => {
 
         {error && (
           <div className="text-center py-20">
-            <p className="text-red-500 font-medium bg-red-50 inline-block px-6 py-3 rounded-2xl">
+            <p className="text-red-500 font-medium bg-red-50 inline-block px-6 py-3 rounded-2xl italic">
               {error}
             </p>
           </div>
         )}
 
-        {!loading && filteredUsers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredUsers.map((user, index) => (
-              <div
-                key={user._id || index}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {!loading && users.length > 0 ? (
+            users.map((user) => (
+              <motion.div
+                key={user._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
                 className="group bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col cursor-pointer border border-gray-100/50"
-                onClick={() => navigate("/schools", { state: { user } })}
+                onClick={() => navigate(`/schools`, { state: { user } })}
               >
                 <div className="relative h-56 overflow-hidden">
                   <img
@@ -125,7 +119,7 @@ const CatePage = () => {
                   </div>
                   <div className="absolute top-4 right-4">
                     <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#E76F51] animate-pulse"></div>
                       <span className="text-[10px] text-gray-700 font-bold uppercase tracking-wider">Verified</span>
                     </div>
                   </div>
@@ -147,7 +141,7 @@ const CatePage = () => {
                   </div>
 
                   <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed mb-6">
-                    {user.description || `Explore top-rated services and facilities at ${user.name}.`}
+                    {user.description || `Highly qualified ${categoryName.toLowerCase()} institutions providing exceptional education.`}
                   </p>
 
                   <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-50">
@@ -166,29 +160,35 @@ const CatePage = () => {
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : !loading && (
-          <div className="flex flex-col items-center justify-center py-20 px-4">
-            <div className="bg-white rounded-[2.5rem] shadow-sm p-12 max-w-lg w-full text-center border border-gray-100">
-              <div className="mb-8 w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center mx-auto">
-                <svg className="h-12 w-12 text-[#E76F51]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">{categoryName}</h3>
-              <p className="text-[#E76F51] text-lg font-bold mb-4">Coming Soon</p>
-              <p className="text-gray-500 mb-6">We're currently onboarding top institutions in this category. Stay tuned!</p>
-              <button
-                onClick={() => navigate("/")}
-                className="text-[#17A2B8] font-bold hover:underline"
+              </motion.div>
+            ))
+          ) : (
+            !loading && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="col-span-full flex justify-center py-20 px-4"
               >
-                Go back to explore others
-              </button>
-            </div>
-          </div>
-        )}
+                <div className="bg-white rounded-[2.5rem] shadow-sm p-12 max-w-lg w-full text-center border border-gray-100">
+                  <div className="mb-8 w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center mx-auto">
+                    <svg className="h-12 w-12 text-[#E76F51]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{categoryName}</h3>
+                  <p className="text-[#E76F51] text-lg font-bold mb-4">Coming Soon</p>
+                  <p className="text-gray-500 mb-6">We're currently onboarding top institutions in this category. Stay tuned!</p>
+                  <button
+                    onClick={() => navigate("/")}
+                    className="text-[#17A2B8] font-bold hover:underline"
+                  >
+                    Go back to explore others
+                  </button>
+                </div>
+              </motion.div>
+            )
+          )}
+        </div>
       </div>
     </div>
   );

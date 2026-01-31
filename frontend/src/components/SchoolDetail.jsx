@@ -67,7 +67,7 @@ const SchoolDetail = () => {
   const formatTextWithLineBreaks = (text, prependAsterisk = false) => {
     if (!text) return "No information available.";
     return text.split("\n").map((line, index) => (
-      <p key={index} className="text-gray-700 leading-relaxed">
+      <p key={index} className="text-gray-700 leading-relaxed font-medium">
         {prependAsterisk && line.trim() !== "" ? "* " : ""}
         {line}
       </p>
@@ -75,14 +75,14 @@ const SchoolDetail = () => {
   };
 
   return (
-    <div className="pt-24 sm:pt-28 bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 min-h-screen">
-      {/* Back Button Container - Adjusted for better positioning */}
+    <div className="pt-24 sm:pt-28 bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 min-h-screen">
+      {/* Back Button Container - Standardized positioning */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 sm:mb-6">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#17A2B8] text-white rounded-full shadow-lg hover:bg-[#138496] transition-all duration-300 transform hover:scale-105 active:scale-95 z-30"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#E76F51] text-white rounded-full shadow-lg hover:bg-[#d34c2a] transition-all duration-300 transform hover:scale-105 active:scale-95 z-30"
           onClick={handleBack}
         >
           <FaArrowLeft className="text-sm" />
@@ -122,20 +122,36 @@ const SchoolDetail = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
               </div>
 
-              {/* Refined Title Card - Less extreme overlap, better padding */}
+              {/* Standardized Title Card - Matches Astitva/Dream classes design */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
                 className="relative mx-auto -mt-16 sm:-mt-20 bg-white px-6 py-5 sm:px-10 sm:py-8 rounded-2xl shadow-xl border border-gray-50 w-[92%] sm:w-5/6 text-center z-20"
               >
-                <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#17A2B8] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-3xl font-extrabold text-[#E76F51] tracking-tight mb-2">
                   {user.name}
-                </h2>
-                <div className="w-16 h-1 bg-[#E76F51] mx-auto my-3 rounded-full"></div>
-                <p className="text-gray-500 text-sm sm:text-lg italic leading-relaxed">
+                </h1>
+                <div className="w-16 h-1 bg-[#E76F51] opacity-30 mx-auto mb-4 rounded-full"></div>
+                <p className="text-gray-500 text-sm sm:text-base italic leading-relaxed mb-4">
                   {user.description || "Discover premium services and facilities dedicated to your growth and well-being."}
                 </p>
+
+                {/* Contact Summary Row - Compact style like in the image */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-[13px] sm:text-sm text-gray-600 font-medium font-bold">
+                  {user.phone && (
+                    <div className="flex items-center gap-2">
+                      <FaPhoneAlt className="text-[#E76F51]" />
+                      <span>Contact:{user.phone}</span>
+                    </div>
+                  )}
+                  {user.address && (
+                    <div className="flex items-center gap-2 text-left">
+                      <FaMapMarkerAlt className="text-[#E76F51] flex-shrink-0" />
+                      <span>Address:{user.address}</span>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             </div>
 
@@ -152,22 +168,22 @@ const SchoolDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-6 sm:mb-8 bg-gradient-to-r from-sky-50 to-blue-50 p-4 sm:p-6 rounded-2xl relative"
+                className="mb-6 bg-[#fff9e6] p-4 sm:p-6 rounded-2xl border border-orange-100"
               >
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                   <div className="w-full sm:w-1/2 sm:pr-4">
-                    <h3 className="text-lg sm:text-xl font-bold text-sky-700 mb-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-2">
                       Contact Information
                     </h3>
-                    <div className="text-sm sm:text-base break-words">
+                    <div className="text-sm sm:text-base">
                       {formatTextWithLineBreaks(user.contactInfo)}
                     </div>
                   </div>
                   <div className="w-full sm:w-1/2 sm:pl-4">
-                    <h3 className="text-lg sm:text-xl font-semibold text-sky-700 mb-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-2">
                       Establishment
                     </h3>
-                    <div className="text-sm sm:text-base font-serif break-words">
+                    <div className="text-sm sm:text-base">
                       {formatTextWithLineBreaks(user.establishment)}
                     </div>
                   </div>
@@ -187,13 +203,13 @@ const SchoolDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-6 sm:mb-8 bg-gradient-to-r from-teal-50 to-cyan-50 p-4 sm:p-6 rounded-2xl relative"
+                className="mb-6 bg-[#fffdf0] p-4 sm:p-6 rounded-2xl border border-orange-100"
               >
                 <div className="px-2 sm:px-6">
-                  <h3 className="text-lg sm:text-xl font-semibold text-teal-700 mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-2">
                     About
                   </h3>
-                  <div className="text-sm sm:text-base break-words leading-relaxed">
+                  <div className="text-sm sm:text-base leading-relaxed">
                     {formatTextWithLineBreaks(user.additionalInfo)}
                   </div>
                 </div>
@@ -211,13 +227,13 @@ const SchoolDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-6 sm:mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
+                className="mb-6 bg-[#fff9e6] p-4 sm:p-6 rounded-2xl border border-orange-100"
               >
                 <div className="px-2 sm:px-6">
-                  <h3 className="text-lg sm:text-xl font-semibold text-cyan-700 mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-2">
                     Amenity
                   </h3>
-                  <div className="text-sm sm:text-base break-words">
+                  <div className="text-sm sm:text-base">
                     {formatTextWithLineBreaks(user.amenity, true)}
                   </div>
                 </div>
@@ -235,10 +251,10 @@ const SchoolDetail = () => {
                 }}
                 initial="hidden"
                 animate={isLoaded ? "visible" : "hidden"}
-                className="mb-8 bg-gradient-to-r from-cyan-50 to-sky-50 p-4 sm:p-6 rounded-2xl relative"
+                className="mb-6 bg-[#fffdf0] p-4 sm:p-6 rounded-2xl border border-orange-100"
               >
                 <div className="p-2 sm:p-4 md:p-6">
-                  <h1 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
+                  <h1 className="text-xl sm:text-2xl font-bold text-orange-800 mb-3 sm:mb-4">
                     Specialist Information
                   </h1>
                   <div className="bg-gray-100 p-3 sm:p-4 rounded-lg">
@@ -255,8 +271,8 @@ const SchoolDetail = () => {
                               : teacher.qualification || "Unknown";
 
                           return (
-                            <li key={index} className="text-sm sm:text-base md:text-lg font-semibold break-words">
-                              <span className="text-teal-700">
+                            <li key={index} className="text-sm sm:text-base md:text-lg font-bold break-words">
+                              <span className="text-[#E76F51]">
                                 {teacherName}
                               </span>{" "}
                               - {teacherQualification}
@@ -284,12 +300,12 @@ const SchoolDetail = () => {
                 className="mb-8"
               >
                 <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors duration-300">
-                  <div className="bg-teal-400 p-3 rounded-full shadow-md">
+                  <div className="bg-[#E76F51] p-3 rounded-full shadow-md">
                     <FaMapMarkerAlt className="text-white text-xl" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Location</h3>
-                    <p className="text-gray-700">{user.address || "Not provided"}</p>
+                    <h3 className="font-bold text-gray-900 text-lg">Location</h3>
+                    <p className="text-gray-700 font-medium">{user.address || "Not provided"}</p>
                   </div>
                 </div>
               </motion.div>
@@ -305,13 +321,11 @@ const SchoolDetail = () => {
                 className="mt-8"
               >
                 <button
-                  className="w-full py-4 bg-teal-500 text-white font-medium rounded-xl shadow-lg hover:bg-teal-600 transition duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                  className="w-full py-4 bg-[#E76F51] text-white font-bold rounded-xl shadow-lg hover:bg-[#d34c2a] transition duration-300 transform hover:-translate-y-1 hover:shadow-xl flex items-center justify-center gap-2"
                   onClick={() => user.phone && window.open(`tel:${user.phone}`, "_self")}
                 >
-                  <span className="flex items-center justify-center gap-2">
-                    <FaPhoneAlt />
-                    {user.phone ? `Call Now` : "No Contact Available"}
-                  </span>
+                  <FaPhoneAlt />
+                  Call Now
                 </button>
               </motion.div>
             </div>

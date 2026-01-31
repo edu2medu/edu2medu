@@ -144,7 +144,7 @@ function MedicalCl() {
               <div
                 key={user._id}
                 className="relative bg-white rounded-xl shadow-lg transform transition duration-300 hover:scale-105 cursor-pointer overflow-hidden"
-                onClick={() => navigate(`/medicalcategory/${user.category}`)}
+                onClick={() => navigate(`/medu-details`, { state: { user } })}
               >
                 <img
                   src={user.image}

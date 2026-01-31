@@ -78,13 +78,13 @@ function DaySchoolCarousel() {
   }, []);
 
   const renderSkeleton = () => (
-    <div className="bg-[#fffbe7] p-6 md:p-8 lg:p-12">
-      <header className="mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 text-left">
+    <div className="py-8 md:py-12 relative z-10">
+      <header className="mb-6 px-6 md:px-16">
+        <h1 className="text-3xl font-extrabold text-gray-900 border-l-4 border-[#E76F51] pl-4 animate-pulse">
           Loading...
         </h1>
       </header>
-      <main className="px-2 md:px-4 lg:px-8">
+      <main className="px-6 md:px-16">
         <Carousel
           responsive={responsive}
           infinite={true}
@@ -93,20 +93,16 @@ function DaySchoolCarousel() {
           showDots={false}
           arrows={false}
           containerClass="carousel-container"
-          itemClass="carousel-item"
+          itemClass="carousel-item px-4"
         >
           {[...Array(3)].map((_, index) => (
             <div
               key={index}
-              className="relative bg-gray-200 rounded-xl shadow-lg mx-2 md:mx-4 h-64 md:h-80 animate-pulse"
+              className="relative bg-white rounded-xl shadow-lg transform transition duration-300 hover:scale-105 cursor-pointer overflow-hidden animate-pulse"
             >
-              <div className="relative h-full">
-                <div className="w-full h-full bg-gray-300"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                <div className="absolute bottom-0 left-0 w-full p-4">
-                  <div className="h-6 bg-gray-400 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-400 rounded w-1/2"></div>
-                </div>
+              <div className="w-full h-64 bg-gray-300 rounded-t-xl"></div>
+              <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent">
+                <div className="h-6 bg-gray-400 rounded w-3/4"></div>
               </div>
             </div>
           ))}
@@ -116,13 +112,11 @@ function DaySchoolCarousel() {
   );
 
   const renderCarousel = (title, users) => (
-    <div key={title} className="bg-[#fffbe7] p-6 md:p-8 lg:p-12 relative z-10">
-      <header className="mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 text-left">
-          {title}
-        </h1>
+    <div key={title} className="py-8 md:py-12 relative z-10">
+      <header className="mb-6 px-6 md:px-16">
+        <h1 className="text-3xl font-extrabold text-gray-900 border-l-4 border-[#E76F51] pl-4">{title}</h1>
       </header>
-      <main className="px-2 md:px-4 lg:px-8">
+      <main className="px-6 md:px-16">
         {users.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center border-2 border-dashed border-gray-300 hover:border-[#E76F51] transition-colors">
@@ -145,32 +139,23 @@ function DaySchoolCarousel() {
             showDots={false}
             arrows={false}
             containerClass="carousel-container"
-            itemClass="carousel-item"
+            itemClass="carousel-item px-4"
           >
             {users.map((user) => (
               <div
                 key={user._id}
-                className="relative bg-white rounded-xl shadow-lg mx-2 md:mx-4 h-64 md:h-80 cursor-pointer overflow-hidden transform transition-transform hover:scale-105"
-                onClick={() => navigate(`/category/${user.category}`)}
+                className="relative bg-white rounded-xl shadow-lg transform transition duration-300 hover:scale-105 cursor-pointer overflow-hidden"
+                onClick={() => navigate(`/schools`, { state: { user } })}
               >
-                <div className="relative h-full">
-                  <img
-                    src={user.image}
-                    alt={user.name}
-                    className="w-full h-full object-cover"
-                    // loading="lazy"
-                    // decoding="async"  
-                    onError={(e) => (e.target.src = "/default-image.png")}/* Prevents blocking the main thread */
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                  <div className="absolute bottom-0 left-0 w-full p-4">
-                    <h2 className="text-lg md:text-xl font-bold text-white">
-                      {user.name || 'No Name Found'}
-                    </h2>
-                    <p className="text-sm md:text-base text-gray-200">
-                      {user.address || 'No Address Found'}
-                    </p>
-                  </div>
+                <img
+                  src={user.image}
+                  alt={user.name}
+                  className="w-full h-64 object-cover rounded-t-xl"
+                  loading="lazy"
+                  onError={(e) => (e.target.src = "/default-image.png")}
+                />
+                <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent">
+                  <h2 className="text-lg font-semibold text-white">{user.name || 'No Name Found'}</h2>
                 </div>
               </div>
             ))}

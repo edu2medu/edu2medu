@@ -11,6 +11,9 @@ const SearchResult = () => {
     navigate(route, { state: { user } });
   };
 
+  const primaryColor = selectedCategory === "Education" ? "#E76F51" : "#17A2B8";
+  const hoverColor = selectedCategory === "Education" ? "#d34c2a" : "#138496";
+
   return (
     <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -49,13 +52,13 @@ const SearchResult = () => {
                     loading="lazy"
                   />
                   <div className="absolute top-4 left-4">
-                    <span className="text-[10px] uppercase tracking-widest font-black text-[#17A2B8] bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
+                    <span className={`text-[10px] uppercase tracking-widest font-black bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm`} style={{ color: primaryColor }}>
                       {user.category || (selectedCategory === "Education" ? "INSTITUTE" : "HEALTHCARE")}
                     </span>
                   </div>
                   <div className="absolute top-4 right-4">
                     <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: selectedCategory === "Education" ? "#E76F51" : "#22c55e" }}></div>
                       <span className="text-[10px] text-gray-700 font-bold uppercase tracking-wider">Verified</span>
                     </div>
                   </div>
@@ -63,12 +66,12 @@ const SearchResult = () => {
 
                 {/* Content Section */}
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 line-clamp-1 mb-2 group-hover:text-[#17A2B8] transition-colors duration-300">
+                  <h3 className="text-xl font-bold text-gray-900 line-clamp-1 mb-2 transition-colors duration-300" style={{ '--hover-color': primaryColor }} onMouseEnter={(e) => e.target.style.color = primaryColor} onMouseLeave={(e) => e.target.style.color = ''}>
                     {user.name}
                   </h3>
 
                   <div className="flex items-start gap-2 text-gray-500 mb-2">
-                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#17A2B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: primaryColor }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -98,7 +101,13 @@ const SearchResult = () => {
                         ))}
                       </div>
                     </div>
-                    <button className="px-5 py-2 bg-[#17A2B8] text-white text-xs font-bold rounded-xl shadow-md hover:bg-[#138496] transform hover:-translate-y-0.5 transition-all duration-300">
+                    <button
+                      className="px-5 py-2 text-white text-xs font-bold rounded-xl shadow-md transform hover:-translate-y-0.5 transition-all duration-300"
+                      style={{ backgroundColor: primaryColor }}
+                      onMouseEnter={(e) => (e.target.style.backgroundColor = hoverColor)}
+                      onMouseLeave={(e) => (e.target.style.backgroundColor = primaryColor)}
+                      onClick={() => handleDetailClick(user)}
+                    >
                       View Details
                     </button>
                   </div>
@@ -111,7 +120,8 @@ const SearchResult = () => {
                 <p className="text-gray-500 font-medium">No results found for your search.</p>
                 <button
                   onClick={() => navigate("/")}
-                  className="mt-4 text-[#17A2B8] font-bold hover:underline"
+                  className="mt-4 font-bold hover:underline"
+                  style={{ color: primaryColor }}
                 >
                   Return to Home
                 </button>
