@@ -1,9 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SearchIcon } from "@heroicons/react/outline";
 import { motion } from "framer-motion";
 import { deduplicatedGet } from "../utils/apiClient";
-import { getCachedData, setCachedData } from "../utils/apiCache";
 import { debounce } from "../utils/debounce";
 
 const Home = () => {
@@ -13,9 +12,7 @@ const Home = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [allCategories, setAllCategories] = useState([]);
 
   useEffect(() => {
     if (location.pathname.includes("/healthcare")) {
@@ -25,47 +22,7 @@ const Home = () => {
     }
   }, [location.pathname]);
 
-  // Fetch categories dynamically
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setCategoriesLoading(true);
-      const cacheKey = 'all-categories';
-      const cachedData = getCachedData(cacheKey);
 
-      try {
-        let response;
-        if (cachedData) {
-          // Use cached data for instant display (< 100ms)
-          response = { data: cachedData };
-          setCategoriesLoading(false);
-          setAllCategories(response.data || []);
-        } else {
-          // Fetch fresh data with timeout (max 2 seconds for categories)
-          const fetchPromise = deduplicatedGet(`${import.meta.env.VITE_BASEURI}/user/getallcategories`);
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timeout')), 2000)
-          );
-
-          response = await Promise.race([fetchPromise, timeoutPromise]);
-          setCachedData(cacheKey, response.data);
-          setAllCategories(response.data || []);
-        }
-      } catch (error) {
-        setAllCategories([]);
-      } finally {
-        setCategoriesLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  // Filter categories based on selected category type
-  const filteredCategories = useMemo(() => {
-    if (!Array.isArray(allCategories)) return [];
-    const userType = selectedCategory === "Education" ? "education" : "healthcare";
-    return allCategories.filter(category => category.userType === userType);
-  }, [allCategories, selectedCategory]);
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
@@ -123,15 +80,7 @@ const Home = () => {
   // Debounced search handler (300ms delay)
   const debouncedSearch = debounce(handleSearch, 300);
 
-  // Handle category click - navigate to category page
-  const handleCategoryClick = (category) => {
-    const categoryName = category.categoryType || category.name;
-    if (selectedCategory === "Education") {
-      navigate(`/category/${categoryName.replace(/\s+/g, " ")}`);
-    } else {
-      navigate(`/medicalcategory/${categoryName.replace(/\s+/g, " ")}`);
-    }
-  };
+
 
   return (
     <div className="relative w-full bg-black min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20">
@@ -159,11 +108,11 @@ const Home = () => {
           <button
             key={category}
             className={`px-6 py-2 rounded-md text-lg font-bold transition-all relative z-20 ${selectedCategory === category
-                ? `ring-2 ring-white ring-offset-2 ring-offset-gray-900 ${category === "Education"
-                  ? "bg-[#E76F51] text-white"
-                  : "bg-[#17A2B8] text-white"
-                }`
-                : "bg-white text-gray-800 hover:bg-gray-100"
+              ? `ring-2 ring-white ring-offset-2 ring-offset-gray-900 ${category === "Education"
+                ? "bg-[#E76F51] text-white"
+                : "bg-[#17A2B8] text-white"
+              }`
+              : "bg-white text-gray-800 hover:bg-gray-100"
               }`}
             onClick={() => handleCategoryChange(category)}
           >
@@ -217,49 +166,6 @@ const Home = () => {
             <SearchIcon className="w-5 h-5" />
           </button>
         </div>
-      </div>
-
-      {/* Dynamic Categories List */}
-      <div className="relative z-10 mt-4 px-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 sm:flex sm:flex-wrap sm:justify-center text-center sm:text-left">
-        {categoriesLoading ? (
-          // Loading skeleton
-          [...Array(5)].map((_, index) => (
-            <div
-              key={index}
-              className={`h-6 w-20 sm:w-24 bg-gray-300 rounded animate-pulse mx-auto ${selectedCategory === "Education"
-                ? "bg-[#E76F51]/30"
-                : "bg-[#17A2B8]/30"
-                }`}
-            ></div>
-          ))
-        ) : filteredCategories.length > 0 ? (
-          filteredCategories.map((category) => {
-            const categoryName = category.categoryType || category.name;
-            return (
-              <motion.span
-                key={category._id || categoryName}
-                className={`font-bold text-center sm:text-left cursor-pointer text-xs sm:text-sm md:text-base transition duration-300 px-2 py-1 rounded-md hover:bg-white/10 ${selectedCategory === "Education"
-                  ? "text-[#E76F51] hover:text-[#d34c2a]"
-                  : "text-[#17A2B8] hover:text-[#117585]"
-                  }`}
-                onClick={() => handleCategoryClick(category)}
-                title={category.description || categoryName}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {categoryName}
-              </motion.span>
-            );
-          })
-        ) : (
-          // Fallback if no categories found
-          <span className={`text-sm col-span-full ${selectedCategory === "Education"
-            ? "text-[#E76F51]"
-            : "text-[#17A2B8]"
-            }`}>
-            No categories available
-          </span>
-        )}
       </div>
     </div>
   );
