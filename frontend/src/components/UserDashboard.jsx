@@ -1269,7 +1269,7 @@ export default function UserDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div
                 className="group bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:scale-105 transition-all duration-300"
-                onClick={() => window.location.href = 'tel:+919811247700'}
+                onClick={() => window.location.href = 'tel:+919274333156'}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
@@ -1277,7 +1277,7 @@ export default function UserDashboard() {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-white">Call Us</p>
-                    <p className="text-blue-100 text-sm">+91 9811247700</p>
+                    <p className="text-blue-100 text-sm">+91 9274333156</p>
                   </div>
                 </div>
               </div>
