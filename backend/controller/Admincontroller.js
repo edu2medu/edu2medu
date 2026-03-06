@@ -393,12 +393,12 @@ exports.getAllNews = async (req, res) => {
     }
 
     // Check if image is already a Cloudinary URL (starts with http) or needs baseUrl
-    const baseUrl = `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get("host")}/`;
+    const baseUrl = `${req.protocol === 'http' && req.get('host').includes('onrender') ? 'https' : req.protocol}://${req.get("host")}/`;
     const updatedNews = news.map(item => ({
       ...item._doc,
       image: item.image
         ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
-        : `${baseUrl}default-image.png`
+        : "/default-image.png"
     }));
 
     res.status(200).json({
