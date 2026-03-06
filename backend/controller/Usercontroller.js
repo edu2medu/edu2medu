@@ -672,23 +672,34 @@ exports.searchEducation = async (req, res) => {
   console.log(`Search Education hit with query: "${query}"`);
 
   try {
+    const keywords = query.split(/\s+/).filter(k => k.length > 0);
+    if (keywords.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const andQuery = keywords.map(kw => ({
+      $or: [
+        { name: { $regex: kw, $options: "i" } },
+        { category: { $regex: kw, $options: "i" } },
+        { address: { $regex: kw, $options: "i" } },
+        { phone: { $regex: kw, $options: "i" } },
+        { description: { $regex: kw, $options: "i" } },
+        { amenity: { $regex: kw, $options: "i" } },
+        { amenities: { $regex: kw, $options: "i" } },
+        { establishment: { $regex: kw, $options: "i" } },
+        { establishmentYear: { $regex: kw, $options: "i" } },
+        { contactInfo: { $regex: kw, $options: "i" } },
+        { additionalInfo: { $regex: kw, $options: "i" } },
+        { "teachers.name": { $regex: kw, $options: "i" } },
+        { "teachers.qualification": { $regex: kw, $options: "i" } },
+      ],
+    }));
+
     // Search for education-related users
     const results = await User.find({
       userType: "education",
       status: { $in: ["active", "unblock"] },
-      $or: [
-        { name: { $regex: query, $options: "i" } },
-        { category: { $regex: query, $options: "i" } },
-        { address: { $regex: query, $options: "i" } },
-        { phone: { $regex: query, $options: "i" } },
-        { description: { $regex: query, $options: "i" } },
-        { amenity: { $regex: query, $options: "i" } },
-        { establishment: { $regex: query, $options: "i" } },
-        { contactInfo: { $regex: query, $options: "i" } },
-        { additionalInfo: { $regex: query, $options: "i" } },
-        { "teachers.name": { $regex: query, $options: "i" } },
-        { "teachers.qualification": { $regex: query, $options: "i" } },
-      ],
+      $and: andQuery,
     });
 
     if (results.length === 0) {
@@ -718,23 +729,34 @@ exports.searchHealthcare = async (req, res) => {
   console.log(`Search Healthcare hit with query: "${query}"`);
 
   try {
+    const keywords = query.split(/\s+/).filter(k => k.length > 0);
+    if (keywords.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const andQuery = keywords.map(kw => ({
+      $or: [
+        { name: { $regex: kw, $options: "i" } },
+        { category: { $regex: kw, $options: "i" } },
+        { address: { $regex: kw, $options: "i" } },
+        { phone: { $regex: kw, $options: "i" } },
+        { description: { $regex: kw, $options: "i" } },
+        { amenity: { $regex: kw, $options: "i" } },
+        { amenities: { $regex: kw, $options: "i" } },
+        { establishment: { $regex: kw, $options: "i" } },
+        { establishmentYear: { $regex: kw, $options: "i" } },
+        { contactInfo: { $regex: kw, $options: "i" } },
+        { additionalInfo: { $regex: kw, $options: "i" } },
+        { "teachers.name": { $regex: kw, $options: "i" } },
+        { "teachers.qualification": { $regex: kw, $options: "i" } },
+      ],
+    }));
+
     // Search for healthcare-related users
     const results = await User.find({
       userType: "healthcare",
       status: { $in: ["active", "unblock"] },
-      $or: [
-        { name: { $regex: query, $options: "i" } },
-        { category: { $regex: query, $options: "i" } },
-        { address: { $regex: query, $options: "i" } },
-        { phone: { $regex: query, $options: "i" } },
-        { description: { $regex: query, $options: "i" } },
-        { amenity: { $regex: query, $options: "i" } },
-        { establishment: { $regex: query, $options: "i" } },
-        { contactInfo: { $regex: query, $options: "i" } },
-        { additionalInfo: { $regex: query, $options: "i" } },
-        { "teachers.name": { $regex: query, $options: "i" } },
-        { "teachers.qualification": { $regex: query, $options: "i" } },
-      ],
+      $and: andQuery,
     });
 
     if (results.length === 0) {
