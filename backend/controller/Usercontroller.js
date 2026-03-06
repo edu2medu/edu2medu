@@ -680,6 +680,14 @@ exports.searchEducation = async (req, res) => {
         { name: { $regex: query, $options: "i" } },
         { category: { $regex: query, $options: "i" } },
         { address: { $regex: query, $options: "i" } },
+        { phone: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+        { amenity: { $regex: query, $options: "i" } },
+        { establishment: { $regex: query, $options: "i" } },
+        { contactInfo: { $regex: query, $options: "i" } },
+        { additionalInfo: { $regex: query, $options: "i" } },
+        { "teachers.name": { $regex: query, $options: "i" } },
+        { "teachers.qualification": { $regex: query, $options: "i" } },
       ],
     });
 
@@ -718,6 +726,14 @@ exports.searchHealthcare = async (req, res) => {
         { name: { $regex: query, $options: "i" } },
         { category: { $regex: query, $options: "i" } },
         { address: { $regex: query, $options: "i" } },
+        { phone: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+        { amenity: { $regex: query, $options: "i" } },
+        { establishment: { $regex: query, $options: "i" } },
+        { contactInfo: { $regex: query, $options: "i" } },
+        { additionalInfo: { $regex: query, $options: "i" } },
+        { "teachers.name": { $regex: query, $options: "i" } },
+        { "teachers.qualification": { $regex: query, $options: "i" } },
       ],
     });
 

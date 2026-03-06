@@ -150,8 +150,8 @@ const Home = () => {
             placeholder={
               selectedOption ||
               (selectedCategory === "Education"
-                ? "Search schools, subjects, boards, cities..."
-                : "Search hospitals, specialists, clinics...")
+                ? "Search schools, teachers, address, amenities..."
+                : "Search hospitals, specialists, address, phone...")
             }
             className="p-3 pl-10 pr-14 rounded-lg w-full text-sm sm:text-base placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-[#5e758e] shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
             value={searchQuery}
