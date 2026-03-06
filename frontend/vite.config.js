@@ -12,7 +12,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_BASEURI || 'https://edu2medu-production.up.railway.app',
+        target: process.env.VITE_BASEURI || 'https://edu2medu.onrender.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
