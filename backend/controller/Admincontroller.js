@@ -1,12 +1,12 @@
 
-const Admin=require('../model/Admin');
+const Admin = require('../model/Admin');
 const User = require('../model/User');
 const multer = require('multer');
 const News = require("../model/News");
 const fs = require('fs');
-const Category=require('../model/Category')
-const Contact=require('../model/Contact')
-const path=require("path")
+const Category = require('../model/Category')
+const Contact = require('../model/Contact')
+const path = require("path")
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
@@ -112,153 +112,153 @@ exports.adminLogin = async (req, res) => {
 };
 
 
-  
 
 
 
 
-  exports.getEducationUsers = async (req, res) => {
-    try {
-      // Fetch only users where userType is 'Education'
-      const users = await User.find({ userType: "education" }, "-password");
-  
-      res.status(200).json({ success: true, users });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, message: "Server error" });
+
+exports.getEducationUsers = async (req, res) => {
+  try {
+    // Fetch only users where userType is 'Education'
+    const users = await User.find({ userType: "education" }, "-password");
+
+    res.status(200).json({ success: true, users });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+exports.getHealthcareUsers = async (req, res) => {
+  try {
+    // Fetch only users where userType is 'Education'
+    const users = await User.find({ userType: "healthcare" }, "-password");
+
+    res.status(200).json({ success: true, users });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+exports.blockEducationUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const users = await User.findById(userId);
+
+    if (!users) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  };
-  
 
-  exports.getHealthcareUsers = async (req, res) => {
-    try {
-      // Fetch only users where userType is 'Education'
-      const users = await User.find({ userType: "healthcare" }, "-password");
-  
-      res.status(200).json({ success: true, users });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, message: "Server error" });
+    if (users.status === 'blocked') {
+      return res.status(400).json({ message: 'User is already block' });
     }
-  };
+
+    users.status = 'blocked';
+    await users.save();
+
+    return res.status(200).json({ message: 'User block successfully!' });
+  } catch (error) {
+    console.error('Error activating user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 
-  exports.blockEducationUser= async (req, res) => {
-    const { userId } = req.body;
-  
-    try {
-      const users = await User.findById(userId);
-  
-      if (!users) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      if (users.status === 'blocked') {
-        return res.status(400).json({ message: 'User is already block' });
-      }
-  
-      users.status = 'blocked';
-      await users.save();
-  
-      return res.status(200).json({ message: 'User block successfully!' });
-    } catch (error) {
-      console.error('Error activating user:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+
+exports.blockHealthcareUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const users = await User.findById(userId);
+
+    if (!users) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  };
-  
 
-
-  exports.blockHealthcareUser= async (req, res) => {
-    const { userId } = req.body;
-  
-    try {
-      const users = await User.findById(userId);
-  
-      if (!users) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      if (users.status === 'blocked') {
-        return res.status(400).json({ message: 'User is already block' });
-      }
-  
-      users.status = 'blocked';
-      await users.save();
-  
-      return res.status(200).json({ message: 'User block successfully!' });
-    } catch (error) {
-      console.error('Error activating user:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+    if (users.status === 'blocked') {
+      return res.status(400).json({ message: 'User is already block' });
     }
-  };
-  
+
+    users.status = 'blocked';
+    await users.save();
+
+    return res.status(200).json({ message: 'User block successfully!' });
+  } catch (error) {
+    console.error('Error activating user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 
 
-  exports.unblockEducationUser= async (req, res) => {
-    const { userId } = req.body;
-  
-    try {
-      const users = await User.findById(userId);
-  
-      if (!users) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      if (users.status === 'active') {
-        return res.status(400).json({ message: 'User is already active' });
-      }
-  
-      users.status = 'active';
-      await users.save();
-  
-      return res.status(200).json({ message: 'User active successfully!' });
-    } catch (error) {
-      console.error('Error activating user:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+
+exports.unblockEducationUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const users = await User.findById(userId);
+
+    if (!users) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  };
-  
 
-
-  exports.unblockHealthcareUser= async (req, res) => {
-    const { userId } = req.body;
-  
-    try {
-      const users = await User.findById(userId);
-  
-      if (!users) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      if (users.status === 'active') {
-        return res.status(400).json({ message: 'User is already active' });
-      }
-  
-      users.status = 'active';
-      await users.save();
-  
-      return res.status(200).json({ message: 'User block successfully!' });
-    } catch (error) {
-      console.error('Error activating user:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+    if (users.status === 'active') {
+      return res.status(400).json({ message: 'User is already active' });
     }
-  };
+
+    users.status = 'active';
+    await users.save();
+
+    return res.status(200).json({ message: 'User active successfully!' });
+  } catch (error) {
+    console.error('Error activating user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+exports.unblockHealthcareUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const users = await User.findById(userId);
+
+    if (!users) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (users.status === 'active') {
+      return res.status(400).json({ message: 'User is already active' });
+    }
+
+    users.status = 'active';
+    await users.save();
+
+    return res.status(200).json({ message: 'User block successfully!' });
+  } catch (error) {
+    console.error('Error activating user:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 
 
 
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
-      if (allowedTypes.includes(file.mimetype)) {
-          cb(null, true);
-      } else {
-          cb(new Error("Invalid file type. Only JPEG, PNG, GIF, WebP, and AVIF are allowed."), false);
-      }
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type. Only JPEG, PNG, GIF, WebP, and AVIF are allowed."), false);
+    }
   }
 });
 
@@ -266,111 +266,111 @@ const upload = multer({
 
 
 exports.addCategory = (req, res) => {
-    upload.single("image")(req, res, async (err) => {
-        if (err) {
-            console.error("File upload error:", err);
-            return res.status(500).json({ 
-                success: false, 
-                message: "File upload failed" 
-            });
-        }
+  upload.single("image")(req, res, async (err) => {
+    if (err) {
+      console.error("File upload error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "File upload failed"
+      });
+    }
 
-        const { name, ctitle, categoryType,userType } = req.body;
-        // Cloudinary returns the full URL in req.file.path
-        const image = req.file ? req.file.path : null;  
+    const { name, ctitle, categoryType, userType } = req.body;
+    // Cloudinary returns the full URL in req.file.path
+    const image = req.file ? req.file.path : null;
 
-        console.log("Category upload - File received:", req.file ? req.file.filename : "No file");
-        console.log("Category upload - Image URL:", image);
+    console.log("Category upload - File received:", req.file ? req.file.filename : "No file");
+    console.log("Category upload - Image URL:", image);
 
-        if (!name || !ctitle || !categoryType || !image ||!userType) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "All fields are required" 
-            });
-        }
+    if (!name || !ctitle || !categoryType || !image || !userType) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required"
+      });
+    }
 
-        try {
-            const newCategory = new Category({
-                name,
-                ctitle,
-                categoryType,
-                image,
-                userType
-            });
+    try {
+      const newCategory = new Category({
+        name,
+        ctitle,
+        categoryType,
+        image,
+        userType
+      });
 
-            await newCategory.save();
-            console.log("Category saved successfully with image:", newCategory.image);
-            res.status(201).json({ 
-                success: true, 
-                message: "Category added successfully", 
-                category: newCategory 
-            });
-        } catch (error) {
-            console.error("Database error:", error);
-            res.status(500).json({ 
-                success: false, 
-                message: "Failed to add category" 
-            });
-        }
-    });
+      await newCategory.save();
+      console.log("Category saved successfully with image:", newCategory.image);
+      res.status(201).json({
+        success: true,
+        message: "Category added successfully",
+        category: newCategory
+      });
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to add category"
+      });
+    }
+  });
 };
 
 
-  
-  
-  
 
-  
+
+
+
+
 
 // Create News
 exports.createNews = (req, res) => {
   upload.single("image")(req, res, async (err) => {
-      if (err) {
-          console.error("File upload error:", err);
-          return res.status(500).json({
-              success: false,
-              message: "File upload failed"
-          });
-      }
+    if (err) {
+      console.error("File upload error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "File upload failed"
+      });
+    }
 
-      const { title, content, moreContent } = req.body;
-      // Cloudinary returns the full URL in req.file.path
-      const image = req.file ? req.file.path : null;
+    const { title, content, moreContent } = req.body;
+    // Cloudinary returns the full URL in req.file.path
+    const image = req.file ? req.file.path : null;
 
-      console.log("News upload - File received:", req.file ? req.file.filename : "No file");
-      console.log("News upload - Image URL:", image);
+    console.log("News upload - File received:", req.file ? req.file.filename : "No file");
+    console.log("News upload - Image URL:", image);
 
-      // ✅ Correct the validation check
-      if (!title || !content || !moreContent || !image) {
-          return res.status(400).json({
-              success: false,
-              message: "All fields including the image are required"
-          });
-      }
+    // ✅ Correct the validation check
+    if (!title || !content || !moreContent || !image) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields including the image are required"
+      });
+    }
 
-      try {
-          const news = new News({
-              title,
-              content,
-              moreContent,
-              image, // ✅ Save Cloudinary URL
-          });
+    try {
+      const news = new News({
+        title,
+        content,
+        moreContent,
+        image, // ✅ Save Cloudinary URL
+      });
 
-          await news.save();
-          console.log("News saved successfully with image:", news.image);
-          res.status(201).json({
-              success: true,
-              message: "News added successfully",
-              news
-          });
-      } catch (error) {
-          console.error("Database error:", error);
-          res.status(500).json({
-              success: false,
-              message: "Failed to add news",
-              error: process.env.NODE_ENV === 'development' ? error.message : undefined
-          });
-      }
+      await news.save();
+      console.log("News saved successfully with image:", news.image);
+      res.status(201).json({
+        success: true,
+        message: "News added successfully",
+        news
+      });
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to add news",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
   });
 };
 
@@ -383,35 +383,35 @@ exports.createNews = (req, res) => {
 
 exports.getAllNews = async (req, res) => {
   try {
-      const news = await News.find().sort({ createdAt: -1 });
+    const news = await News.find().sort({ createdAt: -1 });
 
-      if (!news.length) {
-          return res.status(404).json({
-              success: false,
-              message: "No news articles found"
-          });
-      }
-
-      // Check if image is already a Cloudinary URL (starts with http) or needs baseUrl
-      const baseUrl = `${req.protocol === 'http' && req.get('host').includes('onrender') ? 'https' : req.protocol}://${req.get("host")}/`;
-      const updatedNews = news.map(item => ({
-          ...item._doc,
-          image: item.image 
-            ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
-            : "/default-image.png"
-      }));
-
-      res.status(200).json({
-          success: true,
-          message: "News articles retrieved successfully",
-          news: updatedNews
+    if (!news.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No news articles found"
       });
+    }
+
+    // Check if image is already a Cloudinary URL (starts with http) or needs baseUrl
+    const baseUrl = `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get("host")}/`;
+    const updatedNews = news.map(item => ({
+      ...item._doc,
+      image: item.image
+        ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
+        : `${baseUrl}default-image.png`
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "News articles retrieved successfully",
+      news: updatedNews
+    });
   } catch (error) {
-      console.error("Database error:", error);
-      res.status(500).json({
-          success: false,
-          message: "Failed to retrieve news"
-      });
+    console.error("Database error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve news"
+    });
   }
 };
 
@@ -484,7 +484,7 @@ exports.sendPasswordLink = async (req, res) => {
     // Send the reset link
     const frontendUrl = process.env.FRONTEND_URL || "https://edu2medu.com";
     const resetLink = `${frontendUrl}/admin-resetpassword/${admin._id}/${token}`;
-    
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
