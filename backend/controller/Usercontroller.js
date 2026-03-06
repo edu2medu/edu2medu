@@ -193,13 +193,13 @@ exports.getEducationUsers = async (req, res) => {
     }
 
     // ✅ Base URL for images (only if not already a Cloudinary URL)
-    const baseUrl = `${req.protocol}://${req.get("host")}/`;
+    const baseUrl = `${req.protocol === 'http' && req.get('host').includes('onrender') ? 'https' : req.protocol}://${req.get("host")}/`;
 
     // ✅ Update image URLs for each user
     const updatedUsers = educationUsers.map((user) => ({
       ...user._doc,
       image: user.image
-        ? (user.image.startsWith('http') || image.startsWith('https') ? user.image : `${baseUrl}${user.image}`)
+        ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
         : "/default-image.png",
     }));
 
@@ -221,13 +221,13 @@ exports.getHealthcareUsers = async (req, res) => {
       .limit(500); // Limit results for faster response
 
     // ✅ Base URL setup dynamically
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const baseUrl = `${req.protocol === 'http' && req.get('host').includes('onrender') ? 'https' : req.protocol}://${req.get("host")}`;
 
     // ✅ Optimized mapping - check if image is already a Cloudinary URL
     const updatedUsers = users.map((item) => ({
       ...item,
       image: item.image
-        ? (item.image.startsWith('http') || image.startsWith('https') ? item.image : `${baseUrl}${item.image}`)
+        ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
         : `${baseUrl}/default-image.png`,
     }));
 
@@ -266,13 +266,13 @@ exports.getAllUsers = async (req, res) => {
       .limit(500); // Limit results for faster response
 
     // ✅ Base URL setup dynamically
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const baseUrl = `${req.protocol === 'http' && req.get('host').includes('onrender') ? 'https' : req.protocol}://${req.get("host")}`;
 
     // ✅ Optimized mapping - check if image is already a Cloudinary URL
     const updatedUsers = users.map((item) => ({
       ...item,
       image: item.image
-        ? (item.image.startsWith('http') || image.startsWith('https') ? item.image : `${baseUrl}${item.image}`)
+        ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
         : `${baseUrl}/default-image.png`,
     }));
 
@@ -667,7 +667,7 @@ exports.resetPassword = async (req, res) => {
 
 exports.searchEducation = async (req, res) => {
   const { query = "" } = req.query;
-  const baseUrl = req.protocol + '://' + req.get('host'); // Construct base URL from request
+  const baseUrl = (req.protocol === 'http' && req.get('host').includes('onrender') ? 'https' : req.protocol) + '://' + req.get('host'); // Construct base URL from request
 
   console.log(`Search Education hit with query: "${query}"`);
 
@@ -693,7 +693,7 @@ exports.searchEducation = async (req, res) => {
     const usersWithImageUrls = results.map(user => ({
       ...user._doc,
       image: user.image
-        ? (user.image.startsWith('http') || image.startsWith('https') ? user.image : `${baseUrl}${user.image}`)
+        ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
         : `${baseUrl}/default-image.png`,
     }));
 
@@ -705,7 +705,7 @@ exports.searchEducation = async (req, res) => {
 
 exports.searchHealthcare = async (req, res) => {
   const { query = "" } = req.query;
-  const baseUrl = req.protocol + '://' + req.get('host'); // Construct base URL from request
+  const baseUrl = (req.protocol === 'http' && req.get('host').includes('onrender') ? 'https' : req.protocol) + '://' + req.get('host'); // Construct base URL from request
 
   console.log(`Search Healthcare hit with query: "${query}"`);
 
@@ -730,7 +730,7 @@ exports.searchHealthcare = async (req, res) => {
     const usersWithImageUrls = results.map(user => ({
       ...user._doc,
       image: user.image
-        ? (user.image.startsWith('http') || image.startsWith('https') ? user.image : `${baseUrl}${user.image}`)
+        ? (user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
         : `${baseUrl}/default-image.png`,
     }));
 
