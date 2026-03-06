@@ -487,7 +487,7 @@ export default function UserDashboard() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <div className="relative">
                     <img
-                      src={user.image.startsWith('http') ? user.image : `${import.meta.env.VITE_BASEURI}${user.image}`}
+                      src={(user.image && user.image.includes('https://res.cloudinary')) ? 'https://res.cloudinary.com' + user.image.split('https://res.cloudinary.com')[1] : (user.image.startsWith('http') ? user.image : `${import.meta.env.VITE_BASEURI}${user.image}`)}
                       alt="Profile"
                       className="w-32 h-32 rounded-full object-cover border-4 border-[#17A2B8] shadow-lg"
                       onError={(e) => {
