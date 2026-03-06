@@ -397,7 +397,7 @@ exports.getAllNews = async (req, res) => {
       const updatedNews = news.map(item => ({
           ...item._doc,
           image: item.image 
-            ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image}`)
+            ? (item.image.startsWith('http') || image.startsWith('https') ? item.image : `${baseUrl}${item.image}`)
             : "/default-image.png"
       }));
 
